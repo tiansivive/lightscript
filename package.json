@@ -1,0 +1,44 @@
+{
+  "name": "lightscript",
+  "version": "0.0.1",
+  "description": "A JS inspired language, with pure FP inspired semantics, and a terse, simple syntax",
+  "main": "index.js",
+  "scripts": {
+    "start": "babel-node src/index.js",
+    "nearley": "nearleyc grammar/lightscript.ne -o grammar/lightscript.js",
+    "test-nearley": "nearleyc grammar/test.ne -o grammar/lightscript.js",
+    "test-grammar": "nearley-test grammar/lightscript.js",
+    "railroad": "nearley-railroad grammar/lightscript.ne -o bin/grammar.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "standard": {
+    "ignore": [
+      "node_modules",
+      "dist",
+      "bin",
+      "grammar"
+    ],
+    "globals": [
+      "it",
+      "describe",
+      "test",
+      "expect",
+      "beforeEach",
+      "afterEach",
+      "jest"
+    ]
+  },
+  "dependencies": {
+    "moo": "^0.5.0",
+    "nearley": "^2.19.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/node": "^7.6.1",
+    "@babel/preset-env": "^7.6.0",
+    "jest": "^24.9.0",
+    "standard": "^14.3.0"
+  }
+}
