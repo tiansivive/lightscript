@@ -1,12 +1,11 @@
 @{%
 	const moo = require('moo')
 	const lexer = moo.compile({
-		true:   ["true", "on", "active", "yes", "enabled"],
-		false:  ["false", "off", "inactive", "no", "disabled"],
 		keywords: ["if", "then", "else", "do", "unless", "where", "match", "when", "case", "of", "otherwise", "let", "in", "not", "and", "or", "import", "export", "from", "to", "module", "as", "type", "instance"],
 		rarrow: "->",
 		larror: "<-",
-		operator: ["+", "-", "*", "/", "=", "<", ">", "<=", ">=", "==", "&&", "||", "!", "|>", "<|", ">>", "<<", "<>", "++", "--", "?"],
+		assignment: "=",
+		operator: ["+", "-", "*", "/", "<", ">", "<=", ">=", "==", "&&", "||", "!", "|>", "<|", ">>", "<<", "<>", "++", "--", "?"],
 		delimiter: ["{", "}", "[", "]", "(", ")"],				
 		comma: ",",
 		colon: ":",
@@ -17,33 +16,25 @@
 		identifier: /[a-zA-Z_]\w*/,
 		digits:  /[0-9]+/,
 		string:  /'(?:\\["\\]|[^\n"\\])*'|"(?:\\["\\]|[^\n"\\])*"/,
+		true:   ["true", "on", "active", "yes", "enabled"],
+		false:  ["false", "off", "inactive", "no", "disabled"],
 	});
 %}
 
 @lexer lexer
 
 
-### PROGRAM
+### SCRIPT
 
-program -> _ expression _ {% ([,expression]) => ({ type: "expression", value: expression }) %}
-		 | %nl _ expression _ {% ([,,expression]) => ({ type: "expression", value: expression }) %}
- 		 | _ expression _ %nl {% ([,expression]) => ({ type: "expression", value: expression }) %}
-		 | %nl _ expression _ %nl {% ([,,expression]) => ({ type: "expression", value: expression }) %}
- 		 | _ expression _ %nl program {% ([,expression,, prog]) => {
-				const rest = prog.type === "program" ? prog.value : [prog]
-				return { 
-					type: "program", 
-					value: [
-						{ type: "expression", value: expression }, 
-						...rest
-					] 
-				}
-			} %}
+script -> %nl:? wrapped (%nl wrapped):* (%nl _):? {% ([nl, head, tail]) => {
+	const arr = tail ? tail.map(([, expr]) => expr) : []
+	return { type: "script", val: [ head, ...arr] }
+} %}
 
+wrapped -> _ expression _ {% ([, e]) => ({type: 'expression', value: e }) %}
 		 
 		 
-		 
-# ### EXPRESSIONS		 
+### EXPRESSIONS		 
 
 expression -> identifier {% id %}
 			| literal {% ([literal]) => ({type: "literal", value: literal }) %}
@@ -59,6 +50,7 @@ expression -> identifier {% id %}
 parenthesis -> "(" _ expression _ ")" {% ([,, expr,,]) => ({type: "parenthesis", value: expr }) %}
 
 identifier -> %identifier {% ([{ type, value }]) => ({type, value}) %}
+			| %operator {% ([{ type, value }]) => ({type, value}) %}
 
 literal -> number {% ([num]) => ({type: 'number', value: num}) %} 
 		 | string {% ([str]) => ({type: 'string', value: str}) %}
@@ -141,3 +133,4 @@ boolean -> %true  {% _ => true %}
 # Whitespace
 _ -> (null | %ws) {% _ => null %}
 __ -> %ws {% _ => null %}
+
