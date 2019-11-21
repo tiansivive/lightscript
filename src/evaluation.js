@@ -1,7 +1,6 @@
 import { popScope, pushScope, addToCurrentScope, find } from './identifiers'
 
 const assignment = ({ id, value }) => {
-  console.log('assigning', id, value)
   pushScope(id.value)
   const val = evaluate(value)
   popScope()
@@ -30,6 +29,13 @@ const math = expr => {
 
 export const evaluate = expr => {
   switch (expr.type) {
+    case 'boolean':
+    case 'number':
+    case 'string':
+    case 'tuple':
+    case 'list':
+    case 'record':
+      return expr.value
     case 'literal':
       return expr.value.value
     case 'identifier':
