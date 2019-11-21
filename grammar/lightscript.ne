@@ -50,7 +50,6 @@ expression -> identifier {% id %}
 parenthesis -> "(" _ expression _ ")" {% ([,, expr,,]) => ({type: "parenthesis", value: expr }) %}
 
 identifier -> %identifier {% ([{ type, value }]) => ({type, value}) %}
-			| %operator {% ([{ type, value }]) => ({type, value}) %}
 
 literal -> number {% ([num]) => ({type: 'number', value: num}) %} 
 		 | string {% ([str]) => ({type: 'string', value: str}) %}
@@ -61,7 +60,7 @@ literal -> number {% ([num]) => ({type: 'number', value: num}) %}
 
 assignment -> identifier _ "=" _ expression {% ([id,, equals,, expression]) => ({ type: "assignment", id, value: expression }) %}
 
-property -> (record | identifier | parenthesis ) %dot expression {% ([[context],, value]) => ({type: "property", context, value }) %}
+property -> (record | identifier | parenthesis | property) %dot identifier {% ([[context],, value]) => ({type: "property", context, value }) %}
 
 operation -> algebraic {% ([math]) => ({type: 'math', ...math}) %} 
 		   | logic {% ([logic]) => ({type: 'logical', value: logic}) %} 

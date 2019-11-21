@@ -14,10 +14,11 @@ parser.feed(code)
 const ast = parser.results[0]
 const ambiguity = parser.results.length
 
-console.log('Ambiguity:', ambiguity)
-console.log('AST')
-console.log(ast)
+
 
 const res = evaluate(ast)
 
+console.log('Ambiguity:', ambiguity)
+console.log('AST')
+console.log(ast)
 console.log('EVAL result = ', res)

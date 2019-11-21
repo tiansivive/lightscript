@@ -1,4 +1,6 @@
 import { popScope, pushScope, addToCurrentScope, find } from './identifiers'
+import * as O from './object'
+import { expression } from '@babel/template'
 
 const assignment = ({ id, value }) => {
   pushScope(id.value)
@@ -28,16 +30,20 @@ const math = expr => {
 }
 
 export const evaluate = expr => {
+  console.log('evaluating:', expr.type)
   switch (expr.type) {
     case 'boolean':
     case 'number':
     case 'string':
+      return expr.value;
     case 'tuple':
     case 'list':
     case 'record':
-      return expr.value
+      return O.create(expr.value)
+    case 'property':
+      return evaluate(expr.context)[expr.value.value]  
     case 'literal':
-      return expr.value.value
+      return evaluate(expr.value)
     case 'identifier':
       return find(expr.value)
     case 'assignment':
