@@ -91,7 +91,7 @@ concatenation -> (identifier | string | list | tuple | record | property | funct
 
 # ### FUNCTIONS
 
-arguments -> identifier (__ identifier):* {% ([arg, args]) => [arg, ...args.map(([, a]) => a)] %}  
+arguments -> identifier (__ identifier):* {% ([arg, args]) => [arg.value, ...args.map(([, a]) => a.value)] %}  
 		   
 parameters -> (__ parameter):+ {% ([params]) => params.map(([, p]) => p) %}
 parameter -> literal {% id %}

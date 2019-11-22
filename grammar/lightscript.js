@@ -126,7 +126,7 @@ var grammar = {
     {"name": "arguments$ebnf$1", "symbols": []},
     {"name": "arguments$ebnf$1$subexpression$1", "symbols": ["__", "identifier"]},
     {"name": "arguments$ebnf$1", "symbols": ["arguments$ebnf$1", "arguments$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "arguments", "symbols": ["identifier", "arguments$ebnf$1"], "postprocess": ([arg, args]) => [arg, ...args.map(([, a]) => a)]},
+    {"name": "arguments", "symbols": ["identifier", "arguments$ebnf$1"], "postprocess": ([arg, args]) => [arg.value, ...args.map(([, a]) => a.value)]},
     {"name": "parameters$ebnf$1$subexpression$1", "symbols": ["__", "parameter"]},
     {"name": "parameters$ebnf$1", "symbols": ["parameters$ebnf$1$subexpression$1"]},
     {"name": "parameters$ebnf$1$subexpression$2", "symbols": ["__", "parameter"]},

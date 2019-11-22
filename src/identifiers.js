@@ -30,6 +30,8 @@ export const addToCurrentScope = (name, value) => {
       identifiers: [{ name, value }]
     })
   } else scopes[index].identifiers.push({ name, value })
+
+  console.log("scopes", path, scopes.findIndex(({ scope }) => scope === path), scopes[scopes.findIndex(({ scope }) => scope === path)])
 }
 
 export const find = id => {
