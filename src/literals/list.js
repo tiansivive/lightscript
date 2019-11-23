@@ -1,5 +1,5 @@
-import { map } from 'lodash/fp'
+
 import { evaluate } from '../evaluation'
 
 
-export const create = map(e => evaluate(e))
+export const create = (list, scope) => list.map(e => evaluate(e, scope).value)

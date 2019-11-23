@@ -16,9 +16,11 @@ const ambiguity = parser.results.length
 
 
 
-const res = evaluate(ast)
+const res = evaluate(ast, { identifiers: [] })
 
 console.log('Ambiguity:', ambiguity)
 console.log('AST')
 console.log(ast)
-console.log('EVAL result = ', res)
+console.log('Evaluated:')
+console.log('scope:', res.scope)
+console.log('results:', res.value)

@@ -1,21 +1,31 @@
-import { popScope, pushScope, addToCurrentScope, find } from './identifiers'
+import * as I from './identifiers'
 import * as O from './literals/object'
 import * as L from './literals/list'
 import * as T from './literals/tuple'
 import * as FN from './functions/definition'
 
-import { map } from 'lodash/fp'
 
-const assignment = ({ id, value }) => {
-  const val = evaluate(value)
-  addToCurrentScope(id.value, val)
-  return val
+
+
+/**
+ * 
+ * @param { Expression } expr 
+ * @param { Scope } scope 
+ * 
+ * @return {{ value: *, scope: Scope }}
+ */
+const assignment = ({ id, value }, scope) => {
+
+  const result = evaluate(value, scope)
+  const identifiers = [{ id: id.value, value: result.value }, ...scope.identifiers]
+
+  return { value: result.value, scope: { identifiers } }
 }
 
-const math = expr => {
-  const left = evaluate(expr.left)
+const math = (expr, scope) => {
+  const { value: left } = evaluate(expr.left, scope)
   if (typeof left !== 'number') throw new Error('Left side of math expression not a number')
-  const right = evaluate(expr.right)
+  const { value: right } = evaluate(expr.right, scope)
   if (typeof right !== 'number') throw new Error('Right side of math expression not a number')
 
   switch (expr.operator) {
@@ -30,40 +40,58 @@ const math = expr => {
   }
 }
 
-export const evaluate = expr => {
+
+/**
+ * 
+ * @param { Expression } expr 
+ * @param { Scope } scope 
+ * 
+ * @return {{ value: *, scope: Scope }}
+ */
+export const evaluate = (expr, scope) => {
   console.log('evaluating:', expr.type)
   switch (expr.type) {
     case 'boolean':
     case 'number':
     case 'string':
-      return expr.value;
+      return { value: expr.value, scope }
     case 'tuple':
-      return T.create(expr.value)
+      return { value:  T.create(expr.value, scope), scope }
     case 'list':
-      return L.create(expr.value)
+      return { value:  L.create(expr.value, scope), scope }
     case 'record':
-      return O.create(expr.value)
+      return { value:  O.create(expr.value, scope), scope }
     case 'property':
-      return evaluate(expr.context)[expr.value.value]  
+      const resolvedObject = evaluate(expr.context, scope).value
+      return { value: resolvedObject[expr.value.value], scope } 
+   
     case 'identifier':
-      return find(expr.value)
+     
+      return { value: I.find(expr.value, scope), scope }
     case 'assignment':
-      return assignment(expr)
+      return assignment(expr, scope)
 
     case 'math':
-      return math(expr)
+      return { value: math(expr, scope), scope }
 
     case 'literal':         
     case 'expression':
-      return evaluate(expr.value)
+      return evaluate(expr.value, scope)
 
     case 'function':
-      return FN.create(expr)
+      //return FN.create(expr)
+      return { value: expr, scope }
 
     case 'function-application':
-      return FN.apply(expr.id, expr.params)
+      return FN.apply(expr.id, expr.params, scope)
 
     case 'script':
-      return expr.val.map(evaluate)
+      return expr.val.reduce(
+        ({ value, scope }, expression) => {
+          const res = evaluate(expression, scope) 
+          return { value: [...value, res.value], scope: res.scope }
+        }, 
+        { value: [], scope }
+      )
   }
 }
