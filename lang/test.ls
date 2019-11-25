@@ -1,7 +1,7 @@
-foo = 9
+[1,2,3] <> [4,5,6]
+"hello " <> "world!"
 
-match foo
-| true -> 1
-| false -> 2
-| 1 -> 3
-| otherwise -> "wrong"
+{ foo: 1 } <> { bar: 2 }
+
+("x","y") <> ("z", "w")
+

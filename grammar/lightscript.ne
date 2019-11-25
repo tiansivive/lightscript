@@ -65,11 +65,10 @@ assignment -> identifier _ "=" _ expression {% ([id,, equals,, expression]) => (
 property -> (record | identifier | parenthesis | property ) %dot identifier {% ([[context],, value]) => ({type: "property", context, value }) %}
 
 operation -> algebraic {% ([math]) => ({type: 'math', ...math}) %} 
-		   | logic {% ([logic]) => ({type: 'logical', value: logic}) %} 
-		   | condition {% ([condition]) => ({type: 'conditional', value: condition}) %} 
-		   | composition {% ([composition]) => ({type: 'composition', value: composition}) %} 
-		   | concatenation {% ([concatenation]) => ({type: 'concatenation', value: concatenation}) %} 
-	
+		   | logic {% ([logic]) => ({type: 'logical', ...logic}) %} 
+		   | condition {% ([condition]) => ({type: 'conditional', ...condition}) %} 
+		   | composition {% ([composition]) => ({type: 'composition', ...composition}) %} 
+		   | concatenation {% ([concatenation]) => ({type: 'concatenation', ...concatenation}) %} 
 
 # ### CONTROL FLOW
 
@@ -86,12 +85,13 @@ match -> "match" __ expression (_ %union _ expression _ "->" _ expression):+ (_ 
 # ### OPERATIONS
 # maybe use a Macro for this Union here?
 logic -> (identifier | boolean | property | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
-	   | "!" expression
+	   | "!" expression {% ([op, expression]) => ({operator: op.value, expression}) %}
+	   
 	   
 algebraic -> (identifier | literal | property | functionApplication | parenthesis) _ ("+" | "-" | "*" | "/") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}	   
 condition -> (identifier | literal | property | functionApplication | parenthesis) _ ("<" | ">" | "<=" | ">=" | "==") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 composition -> (identifier | function | property | functionApplication | parenthesis) _ ("<<" | ">>" ) _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
-concatenation -> (identifier | string | list | tuple | record | property | functionApplication | parenthesis) _ "<>" _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
+concatenation -> (identifier | literal | property | functionApplication | parenthesis) _ "<>" _ expression {% ([[left],, op,, right]) => ({operator: op.value, left, right}) %}
 
 
 

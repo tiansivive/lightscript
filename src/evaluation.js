@@ -4,7 +4,7 @@ import * as L from './literals/list'
 import * as T from './literals/tuple'
 import * as FN from './functions/definition'
 import * as CF from './control-flow/cf'
-
+import * as C from './operations/operations'
 
 
 
@@ -23,23 +23,7 @@ const assignment = ({ id, value }, scope) => {
   return { value: result.value, scope: { identifiers } }
 }
 
-const math = (expr, scope) => {
-  const { value: left } = evaluate(expr.left, scope)
-  if (typeof left !== 'number') throw new Error('Left side of math expression not a number')
-  const { value: right } = evaluate(expr.right, scope)
-  if (typeof right !== 'number') throw new Error('Right side of math expression not a number')
 
-  switch (expr.operator) {
-    case '+':
-      return left + right
-    case '-':
-      return left - right
-    case '*':
-      return left * right
-    case '/':
-      return left / right
-  }
-}
 
 
 /**
@@ -71,25 +55,28 @@ export const evaluate = (expr, scope) => {
       const resolvedObject = evaluate(expr.context, scope).value
       return { value: resolvedObject[expr.value.value], scope } 
    
-    case 'identifier':
-     
+    case 'identifier': 
       return { value: I.find(expr.value, scope), scope }
     case 'assignment':
       return assignment(expr, scope)
 
     case 'math':
-      return { value: math(expr, scope), scope }
+      return { value: C.math(expr, scope), scope }
+    case 'logical':
+      return { value: C.logical(expr, scope), scope } 
+    case 'conditional':
+      return { value: C.conditional(expr, scope), scope }
+    case 'concatenation':
+      return { value: C.concatenation(expr, scope), scope }
+
 
     case 'function':
-      //return FN.create(expr)
       return FN.create(expr, scope)
-
     case 'function-application':
       return FN.apply(expr.id, expr.params, scope)
       
     case 'if-then-else':
       return CF.ifThenElse(expr, scope)
-      
     case 'match':
       return CF.patternMatching(expr, scope)
       
