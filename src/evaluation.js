@@ -37,7 +37,8 @@ export const evaluate = (expr, scope) => {
   console.log('evaluating:', expr.type)
   switch (expr.type) {
     case 'literal':
-    case 'control-flow':         
+    case 'control-flow':
+    case 'parenthesis':         
     case 'expression':
       return evaluate(expr.value, scope)
 

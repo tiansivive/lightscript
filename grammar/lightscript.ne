@@ -7,8 +7,8 @@
 		keywords: ["if", "then", "else", "do", "unless", "where", "match", "when", "case", "of", "otherwise", "let", "in", "not", "and", "or", "import", "export", "from", "to", "module", "as", "type", "instance"],
 		rarrow: "->",
 		larror: "<-",
-		assignment: "=",
 		operator: ["+", "-", "*", "/", "<", ">", "<=", ">=", "==", "&&", "||", "!", "|>", "<|", ">>", "<<", "<>", "++", "--", "?"],
+		assignment: "=",
 		delimiter: ["{", "}", "[", "]", "(", ")"],				
 		comma: ",",
 		colon: ":",
@@ -84,7 +84,7 @@ match -> "match" __ expression (_ %union _ expression _ "->" _ expression):+ (_ 
 
 # ### OPERATIONS
 # maybe use a Macro for this Union here?
-logic -> (identifier | boolean | property | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
+logic -> (identifier | literal | property | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 	   | "!" expression {% ([op, expression]) => ({operator: op.value, expression}) %}
 	   
 	   
@@ -99,7 +99,7 @@ concatenation -> (identifier | literal | property | functionApplication | parent
 
 arguments -> identifier (__ identifier):* {% ([arg, args]) => [arg.value, ...args.map(([, a]) => a.value)] %}  
 		   
-parameters -> (__ parameter):+ {% ([params]) => params.map(([, p]) => p) %}
+parameters -> (%ws _ parameter):+ {% ([params]) => params.map(([,, p]) => p) %}
 parameter -> literal {% id %}
 		   | identifier {% id %}
  		   | parenthesis {% id %}
