@@ -1,5 +1,7 @@
-add = x w -> y z -> x + y + z
+foo = 9
 
-add 1 0 1 1
-
-if add 1 0 1 1 then 1 else 2
+match foo
+| true -> 1
+| false -> 2
+| 1 -> 3
+| otherwise -> "wrong"

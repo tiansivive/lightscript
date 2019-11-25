@@ -1,4 +1,5 @@
 @{%
+
 	const moo = require('moo')
 	const lexer = moo.compile({
 		true:   ["true", "on", "active", "yes", "enabled"],
@@ -18,6 +19,7 @@
 		identifier: /[a-zA-Z_]\w*/,
 		digits:  /[0-9]+/,
 		string:  /'(?:\\["\\]|[^\n"\\])*'|"(?:\\["\\]|[^\n"\\])*"/
+
 	});
 %}
 
@@ -26,12 +28,12 @@
 
 ### SCRIPT
 
-script -> %nl:? wrapped (%nl wrapped):* (%nl _):? {% ([nl, head, tail]) => {
+script -> %nl:? wrapped (%nl wrapped):* _:? {% ([nl, head, tail]) => {
 	const arr = tail ? tail.map(([, expr]) => expr) : []
 	return { type: "script", val: [ head, ...arr] }
 } %}
 
-wrapped -> _ expression _ {% ([, e]) => ({type: 'expression', value: e }) %}
+wrapped -> _ expression {% ([, e]) => ({type: 'expression', value: e }) %}
 		 
 		 
 ### EXPRESSIONS		 
@@ -60,7 +62,7 @@ literal -> number {% ([num]) => ({type: 'number', value: num}) %}
 
 assignment -> identifier _ "=" _ expression {% ([id,, equals,, expression]) => ({ type: "assignment", id, value: expression }) %}
 
-property -> (record | identifier | parenthesis | property) %dot identifier {% ([[context],, value]) => ({type: "property", context, value }) %}
+property -> (record | identifier | parenthesis | property ) %dot identifier {% ([[context],, value]) => ({type: "property", context, value }) %}
 
 operation -> algebraic {% ([math]) => ({type: 'math', ...math}) %} 
 		   | logic {% ([logic]) => ({type: 'logical', value: logic}) %} 
@@ -71,10 +73,14 @@ operation -> algebraic {% ([math]) => ({type: 'math', ...math}) %}
 
 # ### CONTROL FLOW
 
-ifThenElse -> "if" __ expression __ "then" __ expression __ "else" __ expression {% ([ ,,condition,, ,,truthy,, ,,falsy]) => ({ type: "if-then-else", condition, truthy, falsy }) %}
+ifThenElse -> "if" __ expression __:+ "then" __ expression __:+ "else" __ expression {% ([ ,,condition,, ,,truthy,, ,,falsy]) => ({ type: "if-then-else", condition, truthy, falsy }) %}
 match -> "match" __ expression (_ %union _ expression _ "->" _ expression):+ (_ %union _ "otherwise" _ "->" _ expression):?
-{% ([,, proposition, cases, otherwise]) => ({ type: "match", cases: cases.map(([,,, evaluation,,,, value]) => ({ evaluation, value })), otherwise: otherwise ? otherwise[otherwise.length -1] : null }) %}
-
+{% ([,, expression, patterns, otherwise]) => ({ 
+	type: "match", 
+	expression,
+	patterns: patterns.map(([,,, evaluation,,,, value]) => ({ evaluation, value })), 
+	otherwise: otherwise ? otherwise[otherwise.length -1] : null 
+}) %}
 
 
 # ### OPERATIONS
@@ -130,6 +136,6 @@ boolean -> %true  {% _ => true %}
 
 
 # Whitespace
-_ -> (null | %ws) {% _ => null %}
-__ -> %ws {% _ => null %}
+_ -> (null | %ws | %nl) {% _ => null %}
+__ -> (%ws|%nl) {% _ => null %}
 

@@ -3,6 +3,7 @@
 (function () {
 function id(x) { return x[0]; }
 
+
 	const moo = require('moo')
 	const lexer = moo.compile({
 		true:   ["true", "on", "active", "yes", "enabled"],
@@ -22,6 +23,7 @@ function id(x) { return x[0]; }
 		identifier: /[a-zA-Z_]\w*/,
 		digits:  /[0-9]+/,
 		string:  /'(?:\\["\\]|[^\n"\\])*'|"(?:\\["\\]|[^\n"\\])*"/
+
 	});
 var grammar = {
     Lexer: lexer,
@@ -31,14 +33,13 @@ var grammar = {
     {"name": "script$ebnf$2", "symbols": []},
     {"name": "script$ebnf$2$subexpression$1", "symbols": [(lexer.has("nl") ? {type: "nl"} : nl), "wrapped"]},
     {"name": "script$ebnf$2", "symbols": ["script$ebnf$2", "script$ebnf$2$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "script$ebnf$3$subexpression$1", "symbols": [(lexer.has("nl") ? {type: "nl"} : nl), "_"]},
-    {"name": "script$ebnf$3", "symbols": ["script$ebnf$3$subexpression$1"], "postprocess": id},
+    {"name": "script$ebnf$3", "symbols": ["_"], "postprocess": id},
     {"name": "script$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "script", "symbols": ["script$ebnf$1", "wrapped", "script$ebnf$2", "script$ebnf$3"], "postprocess":  ([nl, head, tail]) => {
         	const arr = tail ? tail.map(([, expr]) => expr) : []
         	return { type: "script", val: [ head, ...arr] }
         } },
-    {"name": "wrapped", "symbols": ["_", "expression", "_"], "postprocess": ([, e]) => ({type: 'expression', value: e })},
+    {"name": "wrapped", "symbols": ["_", "expression"], "postprocess": ([, e]) => ({type: 'expression', value: e })},
     {"name": "expression", "symbols": ["identifier"], "postprocess": id},
     {"name": "expression", "symbols": ["literal"], "postprocess": ([literal]) => ({type: "literal", value: literal })},
     {"name": "expression", "symbols": ["assignment"], "postprocess": id},
@@ -68,7 +69,11 @@ var grammar = {
     {"name": "operation", "symbols": ["condition"], "postprocess": ([condition]) => ({type: 'conditional', value: condition})},
     {"name": "operation", "symbols": ["composition"], "postprocess": ([composition]) => ({type: 'composition', value: composition})},
     {"name": "operation", "symbols": ["concatenation"], "postprocess": ([concatenation]) => ({type: 'concatenation', value: concatenation})},
-    {"name": "ifThenElse", "symbols": [{"literal":"if"}, "__", "expression", "__", {"literal":"then"}, "__", "expression", "__", {"literal":"else"}, "__", "expression"], "postprocess": ([ ,,condition,, ,,truthy,, ,,falsy]) => ({ type: "if-then-else", condition, truthy, falsy })},
+    {"name": "ifThenElse$ebnf$1", "symbols": ["__"]},
+    {"name": "ifThenElse$ebnf$1", "symbols": ["ifThenElse$ebnf$1", "__"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ifThenElse$ebnf$2", "symbols": ["__"]},
+    {"name": "ifThenElse$ebnf$2", "symbols": ["ifThenElse$ebnf$2", "__"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "ifThenElse", "symbols": [{"literal":"if"}, "__", "expression", "ifThenElse$ebnf$1", {"literal":"then"}, "__", "expression", "ifThenElse$ebnf$2", {"literal":"else"}, "__", "expression"], "postprocess": ([ ,,condition,, ,,truthy,, ,,falsy]) => ({ type: "if-then-else", condition, truthy, falsy })},
     {"name": "match$ebnf$1$subexpression$1", "symbols": ["_", (lexer.has("union") ? {type: "union"} : union), "_", "expression", "_", {"literal":"->"}, "_", "expression"]},
     {"name": "match$ebnf$1", "symbols": ["match$ebnf$1$subexpression$1"]},
     {"name": "match$ebnf$1$subexpression$2", "symbols": ["_", (lexer.has("union") ? {type: "union"} : union), "_", "expression", "_", {"literal":"->"}, "_", "expression"]},
@@ -76,7 +81,12 @@ var grammar = {
     {"name": "match$ebnf$2$subexpression$1", "symbols": ["_", (lexer.has("union") ? {type: "union"} : union), "_", {"literal":"otherwise"}, "_", {"literal":"->"}, "_", "expression"]},
     {"name": "match$ebnf$2", "symbols": ["match$ebnf$2$subexpression$1"], "postprocess": id},
     {"name": "match$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "match", "symbols": [{"literal":"match"}, "__", "expression", "match$ebnf$1", "match$ebnf$2"], "postprocess": ([,, proposition, cases, otherwise]) => ({ type: "match", cases: cases.map(([,,, evaluation,,,, value]) => ({ evaluation, value })), otherwise: otherwise ? otherwise[otherwise.length -1] : null })},
+    {"name": "match", "symbols": [{"literal":"match"}, "__", "expression", "match$ebnf$1", "match$ebnf$2"], "postprocess":  ([,, expression, patterns, otherwise]) => ({ 
+        	type: "match", 
+        	expression,
+        	patterns: patterns.map(([,,, evaluation,,,, value]) => ({ evaluation, value })), 
+        	otherwise: otherwise ? otherwise[otherwise.length -1] : null 
+        }) },
     {"name": "logic$subexpression$1", "symbols": ["identifier"]},
     {"name": "logic$subexpression$1", "symbols": ["boolean"]},
     {"name": "logic$subexpression$1", "symbols": ["property"]},
@@ -167,8 +177,11 @@ var grammar = {
     {"name": "boolean", "symbols": [(lexer.has("false") ? {type: "false"} : false)], "postprocess": _ => false},
     {"name": "_$subexpression$1", "symbols": []},
     {"name": "_$subexpression$1", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)]},
+    {"name": "_$subexpression$1", "symbols": [(lexer.has("nl") ? {type: "nl"} : nl)]},
     {"name": "_", "symbols": ["_$subexpression$1"], "postprocess": _ => null},
-    {"name": "__", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)], "postprocess": _ => null}
+    {"name": "__$subexpression$1", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)]},
+    {"name": "__$subexpression$1", "symbols": [(lexer.has("nl") ? {type: "nl"} : nl)]},
+    {"name": "__", "symbols": ["__$subexpression$1"], "postprocess": _ => null}
 ]
   , ParserStart: "script"
 }

@@ -86,10 +86,13 @@ export const evaluate = (expr, scope) => {
 
     case 'function-application':
       return FN.apply(expr.id, expr.params, scope)
-
+      
     case 'if-then-else':
       return CF.ifThenElse(expr, scope)
-
+      
+    case 'match':
+      return CF.patternMatching(expr, scope)
+      
     case 'script':
       return expr.val.reduce(
         ({ value, scope }, expression) => {

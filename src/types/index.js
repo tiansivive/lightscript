@@ -10,7 +10,10 @@
  *   context?: Object,
  *   id?: *,
  *   params?: any[],
- *   val?: Expression[]
+ *   val?: Expression[],
+ *   expression?: Expression,
+ *   patterns?: any[],
+ *   otherwise?: *
  * } } Expression
  * @typedef {{ id: string, value: * }} Identifier 
  * @typedef {{ identifiers: Identifier[] }} Scope 
