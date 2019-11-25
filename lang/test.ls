@@ -1,3 +1,3 @@
+add = x w -> y z -> x + y + z
 
-add = x -> y -> x + y
-
+add 1 

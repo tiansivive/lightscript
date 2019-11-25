@@ -80,7 +80,7 @@ export const evaluate = (expr, scope) => {
 
     case 'function':
       //return FN.create(expr)
-      return { value: expr, scope }
+      return FN.create(expr, scope)
 
     case 'function-application':
       return FN.apply(expr.id, expr.params, scope)

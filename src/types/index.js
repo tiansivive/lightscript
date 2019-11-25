@@ -4,16 +4,11 @@
  * @typedef { { type: "identifier", value: string } } IdExpression
  * @typedef {{ type: "function-application", id: IdExpression, params: any[]}} FnApplicationExpression
  * @typedef {{ type: "assignment", id: IdExpression, value: *}} AssignmentExpression
- * @typedef {{
- *   type: string, 
- *   value: *,
- *   context?: Object,
- * }} OtherExpression
  * @typedef { {
  *   type: string, 
- *   value: *,
+ *   value?: *,
  *   context?: Object,
- *   id?: IdExpression,
+ *   id?: *,
  *   params?: any[],
  *   val?: Expression[]
  * } } Expression
