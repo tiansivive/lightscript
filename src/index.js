@@ -24,3 +24,6 @@ console.log(ast)
 console.log('Evaluated:')
 console.log('scope:', res.scope)
 console.log('results:', res.value)
+
+
+if(ambiguity > 1) console.log('Parsing is ambiguous, make sure everything is OK! maybe throw some errors?')

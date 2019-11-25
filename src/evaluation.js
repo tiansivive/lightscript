@@ -3,6 +3,7 @@ import * as O from './literals/object'
 import * as L from './literals/list'
 import * as T from './literals/tuple'
 import * as FN from './functions/definition'
+import * as CF from './control-flow/cf'
 
 
 
@@ -51,6 +52,11 @@ const math = (expr, scope) => {
 export const evaluate = (expr, scope) => {
   console.log('evaluating:', expr.type)
   switch (expr.type) {
+    case 'literal':
+    case 'control-flow':         
+    case 'expression':
+      return evaluate(expr.value, scope)
+
     case 'boolean':
     case 'number':
     case 'string':
@@ -74,16 +80,15 @@ export const evaluate = (expr, scope) => {
     case 'math':
       return { value: math(expr, scope), scope }
 
-    case 'literal':         
-    case 'expression':
-      return evaluate(expr.value, scope)
-
     case 'function':
       //return FN.create(expr)
       return FN.create(expr, scope)
 
     case 'function-application':
       return FN.apply(expr.id, expr.params, scope)
+
+    case 'if-then-else':
+      return CF.ifThenElse(expr, scope)
 
     case 'script':
       return expr.val.reduce(

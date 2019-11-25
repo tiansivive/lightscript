@@ -5,6 +5,8 @@ function id(x) { return x[0]; }
 
 	const moo = require('moo')
 	const lexer = moo.compile({
+		true:   ["true", "on", "active", "yes", "enabled"],
+		false:  ["false", "off", "inactive", "no", "disabled"],
 		keywords: ["if", "then", "else", "do", "unless", "where", "match", "when", "case", "of", "otherwise", "let", "in", "not", "and", "or", "import", "export", "from", "to", "module", "as", "type", "instance"],
 		rarrow: "->",
 		larror: "<-",
@@ -19,9 +21,7 @@ function id(x) { return x[0]; }
 		dot: /\./,
 		identifier: /[a-zA-Z_]\w*/,
 		digits:  /[0-9]+/,
-		string:  /'(?:\\["\\]|[^\n"\\])*'|"(?:\\["\\]|[^\n"\\])*"/,
-		true:   ["true", "on", "active", "yes", "enabled"],
-		false:  ["false", "off", "inactive", "no", "disabled"],
+		string:  /'(?:\\["\\]|[^\n"\\])*'|"(?:\\["\\]|[^\n"\\])*"/
 	});
 var grammar = {
     Lexer: lexer,
