@@ -77,7 +77,7 @@ operation -> algebraic {% ([math]) => ({type: 'math', ...math}) %}
 # ### CONTROL FLOW
 
 ifThenElse -> "if" __ expression __:+ "then" __ expression __:+ "else" __ expression {% ([ ,,condition,, ,,truthy,, ,,falsy]) => ({ type: "if-then-else", condition, truthy, falsy }) %}
-match -> "match" __ expression (_ %union _ expression _ "->" _ expression):+ (_ %union _ "otherwise" _ "->" _ expression):?
+match -> "match" __ expression (__:+ %union __:+ expression _ "->" _ expression):+ (__:+ %union __:+ "otherwise" _ "->" _ expression):?
 {% ([,, expression, patterns, otherwise]) => ({ 
 	type: "match", 
 	expression,

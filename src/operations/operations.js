@@ -59,6 +59,7 @@ export const conditional = (expr, scope) => {
 
   switch (expr.operator) {
     case '<':
+      console.log("left:", left, " - right: ", right)
       return left < right
     case '>':
       return left > right

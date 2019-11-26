@@ -1,24 +1,9 @@
-one = 1
+fac = x -> match x
+  | 0 -> 1
+  | otherwise -> x * fac (x - 1)
 
-three = one + 2
+fac 0
+fac 4
+fac 5
 
-one + three
-
-foo = { bar: { baz: 3 } }
-
-foo.bar.baz
-
-[1,2,3,4,5]
-
-("x", "y")
-
-identity = x -> x
-add = x y -> x + y
-
-curryAdd = x 
-  -> y 
-  -> z 
-  -> x + y + z
-
-add 1 1
-curryAdd 1 2 3
+fac <| fac 5
