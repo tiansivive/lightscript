@@ -1,21 +1,22 @@
 @{%
-
 	const moo = require('moo')
 	const lexer = moo.compile({
-		true:   ["true", "on", "active", "yes", "enabled"],
-		false:  ["false", "off", "inactive", "no", "disabled"],
-		keywords: ["if", "then", "else", "do", "unless", "where", "match", "when", "case", "of", "otherwise", "let", "in", "not", "and", "or", "import", "export", "from", "to", "module", "as", "type", "instance"],
+		
+		keywords: /(?:if|then|else|do|unless|where|match|when|case|of|otherwise|let|in|not|and|or|import|export|from|to|module|as|type|instance)\b/,
+		true:   /(?:true|on|active|yes|enabled)\b/,
+		false:  /(?:false|off|inactive|no|disabled)\b/,
 		rarrow: "->",
 		larror: "<-",
-		operator: ["+", "-", "*", "/", "<", ">", "<=", ">=", "==", "&&", "||", "!", "|>", "<|", ">>", "<<", "<>", "++", "--", "?"],
+		binaryOp: ["+", "-", "*", "/", "<", ">", "<=", ">=", "==", "&&", "||", "|>", "<|", ">>", "<<", "<>"],
+		unaryOp: ["!", "++", "--", "?"],				  
 		assignment: "=",
 		delimiter: ["{", "}", "[", "]", "(", ")"],				
 		comma: ",",
 		colon: ":",
 		union: "|",	
 		ws: /[ \t]+/,
-		nl:  {match: /\n+/, lineBreaks: true},
-		dot: /\./,
+		nl:  { match: /\n+/, lineBreaks: true },
+		dot: /\./,		
 		identifier: /[a-zA-Z_]\w*/,
 		digits:  /[0-9]+/,
 		string:  /'(?:\\["\\]|[^\n"\\])*'|"(?:\\["\\]|[^\n"\\])*"/
@@ -28,12 +29,13 @@
 
 ### SCRIPT
 
-script -> %nl:? wrapped (%nl wrapped):* _:? {% ([nl, head, tail]) => {
-	const arr = tail ? tail.map(([, expr]) => expr) : []
-	return { type: "script", val: [ head, ...arr] }
+
+script -> __:* expression (wrapped):* __:? {% ([,head, tail]) => {
+	const arr = tail ? tail.map(([ expr]) => expr) : []
+	return { type: "script", val: [ {type: 'expression', value: head }, ...arr] }
 } %}
 
-wrapped -> _ expression {% ([, e]) => ({type: 'expression', value: e }) %}
+wrapped -> %nl __:* expression {% ([,,e]) => ({type: 'expression', value: e }) %}
 		 
 		 
 ### EXPRESSIONS		 
@@ -48,6 +50,7 @@ expression -> identifier {% id %}
 			| match {% ([expr]) => ({type: "control-flow", value: expr })  %}
 			| function {% id %}
  			| functionApplication {% id %}
+			| (%binaryOp | %unaryOp) {% ([[op]]) => ({ type: "operator-function", operator: { type: op.type, value: op.value } }) %}
 	
 parenthesis -> "(" _ expression _ ")" {% ([,, expr,,]) => ({type: "parenthesis", value: expr }) %}
 
@@ -69,6 +72,7 @@ operation -> algebraic {% ([math]) => ({type: 'math', ...math}) %}
 		   | condition {% ([condition]) => ({type: 'conditional', ...condition}) %} 
 		   | composition {% ([composition]) => ({type: 'composition', ...composition}) %} 
 		   | concatenation {% ([concatenation]) => ({type: 'concatenation', ...concatenation}) %} 
+	
 
 # ### CONTROL FLOW
 
@@ -82,11 +86,11 @@ match -> "match" __ expression (_ %union _ expression _ "->" _ expression):+ (_ 
 }) %}
 
 
+
 # ### OPERATIONS
 # maybe use a Macro for this Union here?
-logic -> (identifier | literal | property | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
+logic -> (identifier | literal | property | functionApplication | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 	   | "!" expression {% ([op, expression]) => ({operator: op.value, expression}) %}
-	   
 	   
 algebraic -> (identifier | literal | property | functionApplication | parenthesis) _ ("+" | "-" | "*" | "/") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}	   
 condition -> (identifier | literal | property | functionApplication | parenthesis) _ ("<" | ">" | "<=" | ">=" | "==") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
@@ -97,16 +101,16 @@ concatenation -> (identifier | literal | property | functionApplication | parent
 
 # ### FUNCTIONS
 
-arguments -> identifier (__ identifier):* {% ([arg, args]) => [arg.value, ...args.map(([, a]) => a.value)] %}  
+arguments -> identifier (%ws __:* identifier):* {% ([arg, args]) => [arg.value, ...args.map(([,, a]) => a.value)] %}  
 		   
-parameters -> (%ws _ parameter):+ {% ([params]) => params.map(([,, p]) => p) %}
+parameters -> (%ws __:* parameter):+ {% ([params]) => params.map(([,, p]) => p) %}
 parameter -> literal {% id %}
 		   | identifier {% id %}
  		   | parenthesis {% id %}
 		   
 function -> arguments _ "->" _ expression {% ([args,, arrow,, expression]) => ({ type: "function", args, value: expression }) %}
-functionApplication -> (identifier | %operator) _ "<|":? parameters {% ([[id],, pipeline, params]) => ({ type: "function-application", id, params }) %}
-					 | parameters "|>" (identifier | %operator) {% ([params, pipeline, [id]]) => ({ type: "function-application", id, params }) %}
+functionApplication -> identifier _ "<|":? parameters {% ([id,, pipeline, params]) => ({ type: "function-application", id, params }) %}
+					 | parameters "|>" identifier {% ([params, pipeline, id]) => ({ type: "function-application", id, params }) %}
 
 
 
