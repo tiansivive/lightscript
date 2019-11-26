@@ -15,7 +15,10 @@ foo.bar.baz
 identity = x -> x
 add = x y -> x + y
 
-curryAdd = x -> y -> z -> x + y + z
+curryAdd = x 
+  -> y 
+  -> z 
+  -> x + y + z
 
 add 1 1
 curryAdd 1 2 3

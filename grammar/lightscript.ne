@@ -108,7 +108,7 @@ parameter -> literal {% id %}
 		   | identifier {% id %}
  		   | parenthesis {% id %}
 		   
-function -> arguments _ "->" _ expression {% ([args,, arrow,, expression]) => ({ type: "function", args, value: expression }) %}
+function -> arguments (%ws __:*) "->" (%ws __:*) expression {% ([args,, arrow,, expression]) => ({ type: "function", args, value: expression }) %}
 functionApplication -> identifier _ "<|":? parameters {% ([id,, pipeline, params]) => ({ type: "function-application", id, params }) %}
 					 | parameters "|>" identifier {% ([params, pipeline, id]) => ({ type: "function-application", id, params }) %}
 
