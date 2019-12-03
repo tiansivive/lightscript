@@ -7,6 +7,8 @@
 		false:  /(?:false|off|inactive|no|disabled)\b/,
 		rarrow: "->",
 		larror: "<-",
+		rchevron: ">-",
+		lchevron: "-<",
 		binaryOp: ["+", "-", "*", "/", "<", ">", "<=", ">=", "==", "&&", "||", "|>", "<|", ">>", "<<", "<>"],
 		unaryOp: ["!", "++", "--", "?"],				  
 		assignment: "=",
@@ -62,6 +64,8 @@ literal -> number {% ([num]) => ({type: 'number', value: num}) %}
  		 | tuple {% ([tuple]) => ({type: 'tuple', value: tuple}) %} 
  		 | list {% ([list]) => ({type: 'list', value: list}) %} 
  		 | record {% ([record]) => ({type: 'record', value: record}) %} 
+		 | graph {% ([graph]) => ({type: 'graph', value: graph}) %} 
+		 | graphPattern {% ([gPat]) => ({type: 'graph-pattern', value: gPat}) %}
 
 assignment -> identifier _ "=" _ expression {% ([id,, equals,, expression]) => ({ type: "assignment", id, value: expression }) %}
 
@@ -121,14 +125,35 @@ tuple -> "(" _ expression _ ("," _ expression _):+ ")" {% ([,, expr,, rest,]) =>
 list -> "[" _ "]" {% () => [] %}
  	  | "[" _ expression _ ("," _ expression _):* "]" {% ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)] %}
 record -> "{" _ "}" {% () => ({ }) %}
- 		| "{" _ key _ ":" _ expression _ (","  _ key _ ":" _ expression _):* "}" {% ([,, key,, colon,, value,, rest,]) => [{ key, value }, ...rest.map(([,,k,,,,v,]) => ({ key: k, value: v })) ] %}
+ 		| "{" _ key _ ":" _ expression _ (","  _ key _ ":" _ expression _):* "}" 
+			{% ([,, key,, colon,, value,, rest,]) => [{ key, value }, ...rest.map(([,,k,,,,v,]) => ({ key: k, value: v })) ] %}
 
 key -> identifier {% ([id]) => id.value %}
  	 #| string {% id %}
  	 #| functionApplication {% id %}
 
 
+graph -> %lchevron __:* %rchevron
+	   | %lchevron __:* (graphPattern | identifier | parenthesis) __:* ("," __:* (graphPattern | identifier | parenthesis) __:*):* %rchevron 
+			{% ([,, [pat],, rest,])  => [pat, ...rest.map(([,, [p],]) => p)] %}
 
+gNode -> "(" _ ")" {% _ => ({ type: "graph-node", value: { type: "any" } }) %}
+       | "(" identifier ")" {% ([, id ,]) => ({ type: "graph-node", value: id }) %}
+gRelId -> "[" _ "]" {% _ => ({ type: "any" }) %}
+		| "[" identifier "]" {% ([, id ,]) => id %}
+gRel -> "-" {% _ => ({ type: "graph-edge", direction: "bilateral", value: { type: "any" } }) %}
+	  | "-" gRelId "-" {% ([, value,]) => ({ type: "graph-edge", direction: "bilateral", value }) %}
+	  | "-" gRelId "->" {% ([, value,]) => ({ type: "graph-edge", direction: "outgoing", value }) %}
+	  | "<-" gRelId "-" {% ([, value,]) => ({ type: "graph-edge", direction: "incoming", value }) %}
+graphPattern -> gNode gRel gNode (gRel gNode):*
+	{% ([first, edge, second, rest]) => ({
+			type: "graph-pattern",
+			value: rest.reduce(
+				(pat, [e, n]) => ([ ...pat, { first: pat[pat.length -1].second, edge: e, second: n } ]), 
+				[{ first, second, edge }]
+			)
+		}) 
+	%} 
 
 # ### PRIMITIVES
 

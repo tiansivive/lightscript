@@ -6,4 +6,5 @@ fac 0
 fac 4
 fac 5
 
-fac <| fac 5
+
+graph = -< (x)-[r]-(y) >-
