@@ -18,3 +18,12 @@ mul = *
 
 add 1 1
 
+
+
+fac 
+  | 0 -> 1
+  | 0 y -> y
+  | x 1 z -> x * z
+  | 1 1 1 -> 0
+  | x y z -> x + y + z
+  | otherwise -> x * fac (x - 1)

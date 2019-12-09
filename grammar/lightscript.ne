@@ -10,7 +10,7 @@
 		rchevron: ">-",
 		lchevron: "-<",
 		binaryOp: ["+", "-", "*", "/", "<", ">", "<=", ">=", "==", "&&", "||", "|>", "<|", ">>", "<<", "<>"],
-		unaryOp: ["!", "++", "--", "?"],				  
+		unaryOp: ["!", "++", "--", "?"],
 		assignment: "=",
 		delimiter: ["{", "}", "[", "]", "(", ")"],				
 		comma: ",",
@@ -32,12 +32,20 @@
 ### SCRIPT
 
 
-script -> __:* expression (wrapped):* __:? {% ([,head, tail]) => {
+script -> __:* (imports:? %nl) expression (wrapped):* __:? {% ([,[imports], head, tail]) => {
 	const arr = tail ? tail.map(([ expr]) => expr) : []
 	return { type: "script", val: [ {type: 'expression', value: head }, ...arr] }
 } %}
 
 wrapped -> %nl __:* expression {% ([,,e]) => ({type: 'expression', value: e }) %}
+
+imports -> import (%nl __:* import):* 
+
+### MODULES
+
+import -> "import" (__ __:*) identifier (__ __:*) "from" (__ __:*) string {% ([,, id,,,, file]) => ({ type: "import", id, file }) %}
+
+export -> "export" (__ __:*) expression {% ([,, expr]) => ({ type: "export", value: expr }) %}
 		 
 		 
 ### EXPRESSIONS		 
@@ -141,10 +149,10 @@ gNode -> "(" _ ")" {% _ => ({ type: "graph-node", value: { type: "any" } }) %}
        | "(" identifier ")" {% ([, id ,]) => ({ type: "graph-node", value: id }) %}
 gRelId -> "[" _ "]" {% _ => ({ type: "any" }) %}
 		| "[" identifier "]" {% ([, id ,]) => id %}
-gRel -> "-" {% _ => ({ type: "graph-edge", direction: "bilateral", value: { type: "any" } }) %}
-	  | "-" gRelId "-" {% ([, value,]) => ({ type: "graph-edge", direction: "bilateral", value }) %}
-	  | "-" gRelId "->" {% ([, value,]) => ({ type: "graph-edge", direction: "outgoing", value }) %}
-	  | "<-" gRelId "-" {% ([, value,]) => ({ type: "graph-edge", direction: "incoming", value }) %}
+gRel -> "-" gRelId:? "-"  {% ([, value,]) => ({ type: "graph-edge", direction: "bilateral", value }) %}
+	  | "-" gRelId:? "->" {% ([, value,]) => ({ type: "graph-edge", direction: "outgoing", value }) %}
+	  | "<-" gRelId:? "-" {% ([, value,]) => ({ type: "graph-edge", direction: "incoming", value }) %}
+	 
 graphPattern -> gNode gRel gNode (gRel gNode):*
 	{% ([first, edge, second, rest]) => ({
 			type: "graph-pattern",

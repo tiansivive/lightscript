@@ -8,3 +8,7 @@ fac 5
 
 
 graph = -< (x)-[r]-(y) >-
+
+pat = (xx)-[rr]-(yy)
+
+graph
