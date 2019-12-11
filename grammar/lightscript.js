@@ -33,15 +33,12 @@ var grammar = {
     ParserRules: [
     {"name": "script$ebnf$1", "symbols": []},
     {"name": "script$ebnf$1", "symbols": ["script$ebnf$1", "__"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "script$subexpression$1$ebnf$1", "symbols": ["imports"], "postprocess": id},
-    {"name": "script$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "script$subexpression$1", "symbols": ["script$subexpression$1$ebnf$1", (lexer.has("nl") ? {type: "nl"} : nl)]},
     {"name": "script$ebnf$2", "symbols": []},
     {"name": "script$ebnf$2$subexpression$1", "symbols": ["wrapped"]},
     {"name": "script$ebnf$2", "symbols": ["script$ebnf$2", "script$ebnf$2$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "script$ebnf$3", "symbols": ["__"], "postprocess": id},
     {"name": "script$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "script", "symbols": ["script$ebnf$1", "script$subexpression$1", "expression", "script$ebnf$2", "script$ebnf$3"], "postprocess":  ([,[imports], head, tail]) => {
+    {"name": "script", "symbols": ["script$ebnf$1", "imports", "expression", "script$ebnf$2", "script$ebnf$3"], "postprocess":  ([,[imports], head, tail]) => {
         	const arr = tail ? tail.map(([ expr]) => expr) : []
         	return { type: "script", val: [ {type: 'expression', value: head }, ...arr] }
         } },
@@ -49,11 +46,12 @@ var grammar = {
     {"name": "wrapped$ebnf$1", "symbols": ["wrapped$ebnf$1", "__"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "wrapped", "symbols": [(lexer.has("nl") ? {type: "nl"} : nl), "wrapped$ebnf$1", "expression"], "postprocess": ([,,e]) => ({type: 'expression', value: e })},
     {"name": "imports$ebnf$1", "symbols": []},
-    {"name": "imports$ebnf$1$subexpression$1$ebnf$1", "symbols": []},
-    {"name": "imports$ebnf$1$subexpression$1$ebnf$1", "symbols": ["imports$ebnf$1$subexpression$1$ebnf$1", "__"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "imports$ebnf$1$subexpression$1", "symbols": [(lexer.has("nl") ? {type: "nl"} : nl), "imports$ebnf$1$subexpression$1$ebnf$1", "import"]},
+    {"name": "imports$ebnf$1$subexpression$1$subexpression$1$ebnf$1", "symbols": []},
+    {"name": "imports$ebnf$1$subexpression$1$subexpression$1$ebnf$1", "symbols": ["imports$ebnf$1$subexpression$1$subexpression$1$ebnf$1", "__"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "imports$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("nl") ? {type: "nl"} : nl), "imports$ebnf$1$subexpression$1$subexpression$1$ebnf$1"]},
+    {"name": "imports$ebnf$1$subexpression$1", "symbols": ["import", "imports$ebnf$1$subexpression$1$subexpression$1"]},
     {"name": "imports$ebnf$1", "symbols": ["imports$ebnf$1", "imports$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "imports", "symbols": ["import", "imports$ebnf$1"]},
+    {"name": "imports", "symbols": ["imports$ebnf$1"]},
     {"name": "import$subexpression$1$ebnf$1", "symbols": []},
     {"name": "import$subexpression$1$ebnf$1", "symbols": ["import$subexpression$1$ebnf$1", "__"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "import$subexpression$1", "symbols": ["__", "import$subexpression$1$ebnf$1"]},

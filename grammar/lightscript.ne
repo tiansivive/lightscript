@@ -32,14 +32,14 @@
 ### SCRIPT
 
 
-script -> __:* (imports:? %nl) expression (wrapped):* __:? {% ([,[imports], head, tail]) => {
+script -> __:* imports expression (wrapped):* __:? {% ([,[imports], head, tail]) => {
 	const arr = tail ? tail.map(([ expr]) => expr) : []
 	return { type: "script", val: [ {type: 'expression', value: head }, ...arr] }
 } %}
 
 wrapped -> %nl __:* expression {% ([,,e]) => ({type: 'expression', value: e }) %}
 
-imports -> import (%nl __:* import):* 
+imports -> (import (%nl __:*)):*
 
 ### MODULES
 
