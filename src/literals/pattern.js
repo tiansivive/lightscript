@@ -13,7 +13,7 @@ export const create = ({ type, value }, scope) => ({
   value: value.map(({ first, second, edge }) => ({ 
     first: node(first, scope),
     second: node(second, scope),
-    edge: edge(edge, scope)
+    edge: relationship(edge, scope)
   }))
 })
 
