@@ -36,7 +36,8 @@ const assignment = ({ id, value }, scope) => {
  * @return {{ value: *, scope: Scope }}
  */
 export const evaluate = (expr, scope) => {
-  console.log('evaluating:', expr.type)
+  if(process.env.DEBUG) console.log('evaluating:', expr.type)
+  
   switch (expr.type) {
     case 'literal':
     case 'control-flow':
