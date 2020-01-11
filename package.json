@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "babel-node src/index.js",
+    "repl": "babel-node src/repl.js",
     "build": "babel src -d dist --source-maps",
     "nearley": "nearleyc grammar/lightscript.ne -o grammar/lightscript.js",
     "test-nearley": "nearleyc grammar/test.ne -o grammar/lightscript.js",
