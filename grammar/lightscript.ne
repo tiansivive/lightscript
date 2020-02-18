@@ -28,9 +28,8 @@
 
 @lexer lexer
 
+
 ### SCRIPT
-
-
 script -> __:* imports expression (wrapped):* __:? {% ([,[imports], head, tail]) => {
 	const arr = tail ? tail.map(([ expr]) => expr) : []
 	return { type: "script", val: [ {type: 'expression', value: head }, ...arr] }
@@ -147,13 +146,13 @@ graph -> %lchevron __:* %rchevron {% _  => ({ type: 'graph', value: [] }) %}
 	   | %lchevron __:* (graphPattern | identifier | parenthesis) __:* ("," __:* (graphPattern | identifier | parenthesis) __:*):* %rchevron 
 			{% ([,, [pat],, rest,]) => ({ type: 'graph', value: [pat, ...rest.map(([,, [p],]) => p)] }) %}
 
-gNode -> "(" _ ")" {% _ => ({ type: "graph-node", value: { type: "any" } }) %}
-       | "(" identifier ")" {% ([, id ,]) => ({ type: "graph-node", value: id }) %}
-gRelId -> "[" _ "]" {% _ => ({ type: "any" }) %}
-		| "[" identifier "]" {% ([, id ,]) => id %}
-gRel -> "-" gRelId:? "-"  {% ([, value,]) => ({ type: "graph-edge", direction: "bilateral", value }) %}
-	  | "-" gRelId:? "->" {% ([, value,]) => ({ type: "graph-edge", direction: "outgoing", value }) %}
-	  | "<-" gRelId:? "-" {% ([, value,]) => ({ type: "graph-edge", direction: "incoming", value }) %}
+gNode -> "(" _ (":" identifier):* ")" {% ([,, labels]) => ({ type: "graph-node", value: { type: "any" }, labels: labels.map(([, label]) => label.value) }) %}
+       | "(" identifier _ (":" identifier):* ")" {% ([, id ,, labels, ]) => ({ type: "graph-node", value: id, labels: labels.map(([, label]) => label.value) }) %}
+gRelId -> "[" _ (":" identifier):* "]" {% ([,, labels]) => ({ type: "any", labels: labels.map(([, label]) => label.value) }) %}
+		| "[" identifier _ (":" identifier):* "]" {% ([, id ,, labels, ]) => ({ ...id, labels: labels.map(([, label]) => label.value) }) %}
+gRel -> "-" gRelId:? "-"  {% ([, { type, value, labels },]) => ({ type: "graph-edge", direction: "bilateral", value: { type, value}, labels }) %}
+	  | "-" gRelId:? "->" {% ([, { type, value, labels },]) => ({ type: "graph-edge", direction: "outgoing", value: { type, value}, labels }) %}
+	  | "<-" gRelId:? "-" {% ([, { type, value, labels },]) => ({ type: "graph-edge", direction: "incoming", value: { type, value}, labels }) %}
 	 
 graphPattern -> gNode gRel gNode (gRel gNode):*
 	{% ([first, edge, second, rest]) => ({

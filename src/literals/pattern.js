@@ -11,21 +11,21 @@ export const create = ({ type, value }, scope) => ({
 })
 
 
-export const node = ({ value }, scope) => {
+export const node = ({ value, labels }, scope) => {
   if(value.type !== 'identifier') throw new Error('Node in pattern is not an Identifier.')
-  return `(${value.value})`
+  return `(${[value.value, ...labels].join(':')})`
 }
 
 
-export const relationship = ({ direction, value }, scope) => {
+export const relationship = ({ direction, value, labels }, scope) => {
 
   if(value.type !== 'identifier') throw new Error('Relationship in pattern is not an Identifier.')
   switch(direction){
     case 'outgoing':
-      return `-[${value.value}]->`
+      return `-[${[value.value, ...labels].join(':')}]->`
     case 'incoming':
-      return `<-[${value.value}]-`
+      return `<-[${[value.value, ...labels].join(':')}]-`
     case 'bilateral':
-      return `-[${value.value}]-`
+      return `-[${[value.value, ...labels].join(':')}]-`
   }
 }
