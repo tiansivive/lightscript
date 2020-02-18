@@ -26,6 +26,14 @@ const assignment = ({ id, value }, scope) => {
 }
 
 
+const property = ({ id, value, context }, scope) => {
+
+  const evaluated = evaluate(context, scope).value
+  const result = evaluated.type === 'graph' ? I.find(value.value, evaluated.closure) : evaluated[value.value]
+  return { value: result, scope } 
+}
+
+
 
 
 /**
@@ -50,18 +58,17 @@ export const evaluate = (expr, scope) => {
     case 'string':
       return { value: expr.value, scope }
     case 'tuple':
-      return { value:  T.create(expr.value, scope), scope }
+      return { value: T.create(expr.value, scope), scope }
     case 'list':
-      return { value:  L.create(expr.value, scope), scope }
+      return { value: L.create(expr.value, scope), scope }
     case 'record':
-      return { value:  O.create(expr.value, scope), scope }
+      return { value: O.create(expr.value, scope), scope }
     case 'property':
-      const resolvedObject = evaluate(expr.context, scope).value
-      return { value: resolvedObject[expr.value.value], scope } 
+      return property(expr, scope)
     case 'graph':
-      return { value: G.create(expr), scope } 
+      return { value: G.create(expr, scope), scope } 
     case 'graph-pattern': 
-      return { value: GP.create(expr), scope }  
+      return { value: GP.create(expr, scope), scope }  
     case 'graph-node': 
       return { value: GP.node(expr), scope }  
     case 'graph-edge': 

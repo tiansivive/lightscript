@@ -28,7 +28,6 @@
 
 @lexer lexer
 
-
 ### SCRIPT
 
 
@@ -72,7 +71,7 @@ literal -> number {% ([num]) => ({type: 'number', value: num}) %}
  		 | tuple {% ([tuple]) => ({type: 'tuple', value: tuple}) %} 
  		 | list {% ([list]) => ({type: 'list', value: list}) %} 
  		 | record {% ([record]) => ({type: 'record', value: record}) %} 
-		 | graph {% ([graph]) => ({type: 'graph', value: graph}) %} 
+		 | graph {% id %} 
 		 | graphPattern {% id %}
 
 assignment -> identifier _ "=" _ expression {% ([id,, equals,, expression]) => ({ type: "assignment", id, value: expression }) %}
@@ -84,6 +83,9 @@ operation -> algebraic {% ([math]) => ({type: 'math', ...math}) %}
 		   | condition {% ([condition]) => ({type: 'conditional', ...condition}) %} 
 		   | composition {% ([composition]) => ({type: 'composition', ...composition}) %} 
 		   | concatenation {% ([concatenation]) => ({type: 'concatenation', ...concatenation}) %} 
+		   | graphQuery {% ([query]) => ({type: 'graph-query', ...query}) %} 
+		   | graphMutation {% ([mutation]) => ({type: 'graph-mutation', ...mutation}) %} 
+		   
 	
 
 # ### CONTROL FLOW
@@ -108,6 +110,8 @@ algebraic -> (identifier | number | property | functionApplication | parenthesis
 condition -> (identifier | literal | property | functionApplication | parenthesis) _ ("<" | ">" | "<=" | ">=" | "==") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 composition -> (identifier | function | property | functionApplication | parenthesis) _ ("<<" | ">>" ) _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 concatenation -> (identifier | literal | property | functionApplication | parenthesis) _ "<>" _ expression {% ([[left],, op,, right]) => ({operator: op.value, left, right}) %}
+graphQuery -> (identifier | graph | parenthesis) _ "|-" _ (identifier | graphPattern | parenthesis)  {% ([[left],, op,, [right]]) => ({operator: op.value, left, right}) %}
+graphMutation -> (identifier | graph | parenthesis) _ "-|" _ (identifier | graphPattern | parenthesis)  {% ([[left],, op,, [right]]) => ({operator: op.value, left, right}) %}
 
 # ### FUNCTIONS
 
@@ -139,9 +143,9 @@ key -> identifier {% ([id]) => id.value %}
  	 #| functionApplication {% id %}
 
 
-graph -> %lchevron __:* %rchevron
+graph -> %lchevron __:* %rchevron {% _  => ({ type: 'graph', value: [] }) %}
 	   | %lchevron __:* (graphPattern | identifier | parenthesis) __:* ("," __:* (graphPattern | identifier | parenthesis) __:*):* %rchevron 
-			{% ([,, [pat],, rest,])  => [pat, ...rest.map(([,, [p],]) => p)] %}
+			{% ([,, [pat],, rest,]) => ({ type: 'graph', value: [pat, ...rest.map(([,, [p],]) => p)] }) %}
 
 gNode -> "(" _ ")" {% _ => ({ type: "graph-node", value: { type: "any" } }) %}
        | "(" identifier ")" {% ([, id ,]) => ({ type: "graph-node", value: id }) %}

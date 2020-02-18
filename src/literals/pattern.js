@@ -3,10 +3,13 @@ import { evaluate } from '../evaluation'
 
 
 
-export const create = ({ type, value }, scope) => ({ 
+export const create = ({ type, value }, scope) => ({
   type, 
-  value: value.map(({ first, second, edge }, i) => `${node(first)}${relationship(edge)}${ i === value.length -1 ? node(second) : ''}`).join('')
+  value: value.map(({ first, second, edge }, i) => `${node(first)}${relationship(edge)}${ i === value.length -1 ? node(second) : ''}`).join(''),
+  subPatterns: value.map(({ first, second, edge }, i) => `${node(first)}${relationship(edge)}${node(second)}`),
+  closure: scope
 })
+
 
 export const node = ({ value }, scope) => {
   if(value.type !== 'identifier') throw new Error('Node in pattern is not an Identifier.')
