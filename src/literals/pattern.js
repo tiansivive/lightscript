@@ -2,32 +2,27 @@
 import { evaluate } from '../evaluation'
 
 
-const getNextId = (() => {
-  let n = 0, r = 0
-  return type => type === 'node' ? ++n : ++r
-})()
-
 
 export const create = ({ type, value }, scope) => ({ 
   type, 
-  value: value.value.map(({ first, second, edge }) => ({ 
-    first: node(first, scope),
-    second: node(second, scope),
-    edge: relationship(edge, scope)
-  }))
+  value: value.map(({ first, second, edge }, i) => `${node(first)}${relationship(edge)}${ i === value.length -1 ? node(second) : ''}`).join('')
 })
 
-export const node = (node, scope) => {
-  const delayEvaluation = () => evaluate(node, scope)
-  console.log('node:', node)
-  const id = node.type === 'identifier' ? node.value : `__node__id__${getNextId('node')}__`
-  return { type: 'node', id, value: delayEvaluation }
+export const node = ({ value }, scope) => {
+  if(value.type !== 'identifier') throw new Error('Node in pattern is not an Identifier.')
+  return `(${value.value})`
 }
 
 
-export const relationship = (rel, scope) => {
-  const delayEvaluation = () => evaluate(rel, scope)
+export const relationship = ({ direction, value }, scope) => {
 
-  const id = rel.type === 'identifier' ? rel.value : `__rel__id__${getNextId('rel')}__`
-  return { type: 'relationship', id, value: delayEvaluation }
+  if(value.type !== 'identifier') throw new Error('Relationship in pattern is not an Identifier.')
+  switch(direction){
+    case 'outgoing':
+      return `-[${value.value}]->`
+    case 'incoming':
+      return `<-[${value.value}]-`
+    case 'bilateral':
+      return `-[${value.value}]-`
+  }
 }

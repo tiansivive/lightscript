@@ -73,7 +73,7 @@ literal -> number {% ([num]) => ({type: 'number', value: num}) %}
  		 | list {% ([list]) => ({type: 'list', value: list}) %} 
  		 | record {% ([record]) => ({type: 'record', value: record}) %} 
 		 | graph {% ([graph]) => ({type: 'graph', value: graph}) %} 
-		 | graphPattern {% ([gPat]) => ({type: 'graph-pattern', value: gPat}) %}
+		 | graphPattern {% id %}
 
 assignment -> identifier _ "=" _ expression {% ([id,, equals,, expression]) => ({ type: "assignment", id, value: expression }) %}
 
@@ -101,15 +101,13 @@ match -> "match" __ expression (__:+ %union __:+ expression _ "->" _ expression)
 
 # ### OPERATIONS
 # maybe use a Macro for this Union here?
-logic -> (identifier | literal | property | functionApplication | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
+logic -> (identifier | boolean | property | functionApplication | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 	   | "!" expression {% ([op, expression]) => ({operator: op.value, expression}) %}
 	   
-algebraic -> (identifier | literal | property | functionApplication | parenthesis) _ ("+" | "-" | "*" | "/") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}	   
+algebraic -> (identifier | number | property | functionApplication | parenthesis) _ ("+" | "-" | "*" | "/") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}	   
 condition -> (identifier | literal | property | functionApplication | parenthesis) _ ("<" | ">" | "<=" | ">=" | "==") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 composition -> (identifier | function | property | functionApplication | parenthesis) _ ("<<" | ">>" ) _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 concatenation -> (identifier | literal | property | functionApplication | parenthesis) _ "<>" _ expression {% ([[left],, op,, right]) => ({operator: op.value, left, right}) %}
-
-
 
 # ### FUNCTIONS
 
