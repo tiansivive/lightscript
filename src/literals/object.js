@@ -18,7 +18,7 @@ export const toCypher = (obj, scope) => {
 
   const object = `CREATE (o:Object { id: ${id} })`
 
-  const rels = obj.map(({ key, value }) => `(o)-[:HAS]->(k:Key)-[:MAPS]->(v:Value) where k.name = ${key} and v.value = ${value}`)
+  const rels = obj.map(({ key, value }) => `(o)-[:HAS]->(k:Key)-[:MAPS]->(v:Value) where k.name = ${key} and v.value = ${evaluate(value, scope)}`)
 
   const cypher = `
     ${object}
