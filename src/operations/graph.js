@@ -5,7 +5,6 @@ const isDirected = pat => pat.split('').some(c => c === '<' || c === '>')
 const isOutgoing = pat => pat.split('').some(c => c === '>')
 const isIncoming = pat => pat.split('').some(c => c === '<')
 
-
 const getNodes = pat => pat.match(/\((\:|\w)+\)/gi)
 const getRels = pat => pat.match(/\[(\:|\w)+\]/gi)
 
@@ -37,33 +36,6 @@ const matchAux = (pat1, pat2) => {
 }
 
 const match = pat1 => pat2 => matchAux(pat1, pat2) || matchAux(pat1, reverse(pat2))
-
-const pats = 
-  [ '(a:Label)-[r]->(b:Some)'
-  , '(c)<-[r]-(d:Some)' 
-  , '(e:Label)-[r]-(f:Other)'
-  , '(g:Some)-[r]->(h)'
-  ]
-
-const reversed = pats.map(reverse)  
-
-pats.forEach(p => console.log(p))
-reversed.forEach(p => console.log(p))
-reversed.map(reverse).forEach(p => console.log(p))
-
-const matches = 
-  [ match('(a)-[r]-(b)')
-  , match('(a:Label)-[r]-(b)')
-  , match('(a:Label)-[r]->(b)')
-  , match('(a:Other)-[r]-(b:Label)')
-  , match('(a:Some)-[r]->(b)')
-  , match('(a)-[r]->(b:Some)')
-  , match('(a:Label)-[r]-(b:Label)')
-  ]
-
-matches.map(f => pats.map(f)).forEach((result, i) => console.log('result', i, ':', result))
-
-
 
 
 export const query = ({ left, right }, scope) => {
@@ -102,20 +74,3 @@ export const mutation = ({ left, right }, scope) => {
   }
 }
 
-// const query = (graph, query) => {
-
-//   const pats = graph.value.filter(pat => query.subPatterns.some(matches(pat)))
-
-
-// }
-
-
-// var a,b, c
-
-
-// const g = (a)-[b]->(c)
-
-// g |- (x)--(y)
-
-
-// g |- 

@@ -102,10 +102,10 @@ match -> "match" __ expression (__:+ %union __:+ expression _ "->" _ expression)
 
 # ### OPERATIONS
 # maybe use a Macro for this Union here?
-logic -> (identifier | boolean | property | functionApplication | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
+logic -> (identifier | literal | property | functionApplication | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 	   | "!" expression {% ([op, expression]) => ({operator: op.value, expression}) %}
 	   
-algebraic -> (identifier | number | property | functionApplication | parenthesis) _ ("+" | "-" | "*" | "/") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}	   
+algebraic -> (identifier | literal | property | functionApplication | parenthesis) _ ("+" | "-" | "*" | "/") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}	   
 condition -> (identifier | literal | property | functionApplication | parenthesis) _ ("<" | ">" | "<=" | ">=" | "==") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 composition -> (identifier | function | property | functionApplication | parenthesis) _ ("<<" | ">>" ) _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
 concatenation -> (identifier | literal | property | functionApplication | parenthesis) _ "<>" _ expression {% ([[left],, op,, right]) => ({operator: op.value, left, right}) %}

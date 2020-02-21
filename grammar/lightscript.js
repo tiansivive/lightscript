@@ -133,7 +133,7 @@ var grammar = {
         	otherwise: otherwise ? otherwise[otherwise.length -1] : null 
         }) },
     {"name": "logic$subexpression$1", "symbols": ["identifier"]},
-    {"name": "logic$subexpression$1", "symbols": ["boolean"]},
+    {"name": "logic$subexpression$1", "symbols": ["literal"]},
     {"name": "logic$subexpression$1", "symbols": ["property"]},
     {"name": "logic$subexpression$1", "symbols": ["functionApplication"]},
     {"name": "logic$subexpression$1", "symbols": ["parenthesis"]},
@@ -142,7 +142,7 @@ var grammar = {
     {"name": "logic", "symbols": ["logic$subexpression$1", "_", "logic$subexpression$2", "_", "expression"], "postprocess": ([[left],, [op],, right]) => ({operator: op.value, left, right})},
     {"name": "logic", "symbols": [{"literal":"!"}, "expression"], "postprocess": ([op, expression]) => ({operator: op.value, expression})},
     {"name": "algebraic$subexpression$1", "symbols": ["identifier"]},
-    {"name": "algebraic$subexpression$1", "symbols": ["number"]},
+    {"name": "algebraic$subexpression$1", "symbols": ["literal"]},
     {"name": "algebraic$subexpression$1", "symbols": ["property"]},
     {"name": "algebraic$subexpression$1", "symbols": ["functionApplication"]},
     {"name": "algebraic$subexpression$1", "symbols": ["parenthesis"]},
