@@ -1,4 +1,5 @@
 import { evaluate } from '../evaluation'
+import { concat, merge } from 'lodash'
 
 const isDirected = pat => pat.split('').some(c => c === '<' || c === '>')
 const isOutgoing = pat => pat.split('').some(c => c === '>')
@@ -85,8 +86,20 @@ export const query = ({ left, right }, scope) => {
   return { type: 'graph', value: subGraph, closure: scope }
 }
 
-export const mutation = (expr, scope) => {
+export const mutation = ({ left, right }, scope) => {
+  
 
+  const { value: evaluatedGraph} = evaluate(left, scope)
+  if(evaluatedGraph.type !== 'graph') throw new Error('Tried to mutate something other than a graph') 
+
+  const { value: evaluatedPattern} = evaluate(right, scope)
+  if(evaluatedPattern.type !== 'graph-pattern') throw new Error('Tried to mutate with something other than a pattern') 
+
+  return { 
+    type: 'graph', 
+    value: concat(evaluatedGraph.value, evaluatedPattern.subPatterns), 
+    closure: merge(evaluatedGraph.closure, evaluatedPattern.closure)
+  }
 }
 
 // const query = (graph, query) => {
