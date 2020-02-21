@@ -6,7 +6,8 @@ import * as G from './literals/graph'
 import * as GP from './literals/pattern'
 import * as FN from './functions/definition'
 import * as CF from './control-flow/cf'
-import * as C from './operations/operations'
+import * as OP from './operations/operations'
+import * as GO from './operations/graph'
 
 
 
@@ -80,13 +81,17 @@ export const evaluate = (expr, scope) => {
       return assignment(expr, scope)
 
     case 'math':
-      return { value: C.math(expr, scope), scope }
+      return { value: OP.math(expr, scope), scope }
     case 'logical':
-      return { value: C.logical(expr, scope), scope } 
+      return { value: OP.logical(expr, scope), scope } 
     case 'conditional':
-      return { value: C.conditional(expr, scope), scope }
+      return { value: OP.conditional(expr, scope), scope }
     case 'concatenation':
-      return { value: C.concatenation(expr, scope), scope }
+      return { value: OP.concatenation(expr, scope), scope }
+    case 'graph-query':
+      return { value: GO.query(expr, scope), scope }
+    case 'graph-mutation':
+      return { value: GO.mutation(expr, scope), scope }
 
 
     case 'function':

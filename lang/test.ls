@@ -7,8 +7,7 @@ fac 4
 fac 5
 
 
-graph = -< (x)-[r]-(y) >-
+graph = -< (a:Label)-[r]->(b:Some), (c)<-[r]-(d:Some) , (e:Label)-[r]-(f:Other), (g:Some)-[r]->(h) >- |- (x:Other)-[rel]-(y)
 
 pat = (xx)-[rr]-(yy)
 
-graph

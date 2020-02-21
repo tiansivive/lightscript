@@ -6,7 +6,12 @@ import { evaluate } from '../evaluation'
 export const create = ({ type, value }, scope) => ({
   type, 
   value: value.map(({ first, second, edge }, i) => `${node(first)}${relationship(edge)}${ i === value.length -1 ? node(second) : ''}`).join(''),
-  subPatterns: value.map(({ first, second, edge }, i) => `${node(first)}${relationship(edge)}${node(second)}`),
+  subPatterns: value.map(({ first, second, edge }, i) => ({
+    value: `${node(first)}${relationship(edge)}${node(second)}`,
+    first, 
+    second, 
+    edge
+  })),
   closure: scope
 })
 
