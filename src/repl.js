@@ -26,10 +26,12 @@ rl.on('line', line => {
   const ambiguity = parser.results.length
 
   const res = evaluate(ast, scope)
-  console.log(res.value[0])
   scope = res.scope
   parser = new Parser(grammar)
- 
- 
-  if(process.env.DEBUG) console.log('scope:', res.scope)
+  
+  
+  process.env.DEBUG 
+    ? console.log('\nEval:\n', res.value[0])
+    : console.log(res.value[0])
+  if(process.env.DEBUG) console.log('scope:', res.scope, '\n-------------------\n')
 })

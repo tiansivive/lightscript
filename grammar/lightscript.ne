@@ -1,5 +1,6 @@
 @{%
 	const moo = require('moo')
+	const B = require('./builder/index.js')
 	const lexer = moo.compile({
 		
 		keywords: /(?:if|then|else|do|unless|where|match|when|case|of|otherwise|let|in|not|and|or|import|export|from|to|module|as|type|instance)\b/,
@@ -30,121 +31,109 @@
 
 
 ### SCRIPT
-script -> __:* imports expression (wrapped):* __:? {% ([,[imports], head, tail]) => {
-	const arr = tail ? tail.map(([ expr]) => expr) : []
-	return { type: "script", val: [ {type: 'expression', value: head }, ...arr] }
-} %}
+script -> __:* imports expression (wrapped):* __:? {% B.script %}
 
-wrapped -> %nl __:* expression {% ([,,e]) => ({type: 'expression', value: e }) %}
+wrapped -> %nl __:* expression {% B.wrap %}
 
 imports -> (import (%nl __:*)):*
 
 ### MODULES
 
-import -> "import" (__ __:*) identifier (__ __:*) "from" (__ __:*) string {% ([,, id,,,, file]) => ({ type: "import", id, file }) %}
+import -> "import" (__ __:*) identifier (__ __:*) "from" (__ __:*) string {% B.importModule %}
 
-export -> "export" (__ __:*) expression {% ([,, expr]) => ({ type: "export", value: expr }) %}
+export -> "export" (__ __:*) expression {% B.exportModule %}
 		 
 		 
 ### EXPRESSIONS		 
 
 expression -> identifier {% id %}
-			| literal {% ([literal]) => ({type: "literal", value: literal }) %}
+			| literal {% B.expressions.literal %}
 			| assignment {% id %}	
  			| parenthesis  {% id %}
 			| property {% id %}
 			| operation {% id %}
-			| ifThenElse {% ([expr]) => ({type: "control-flow", value: expr })  %}
-			| match {% ([expr]) => ({type: "control-flow", value: expr })  %}
+			| ifThenElse {% B.expressions.ifThenElse %}
+			| match {% B.expressions.match %}
 			| function {% id %}
  			| functionApplication {% id %}
-			| (%binaryOp | %unaryOp) {% ([[op]]) => ({ type: "operator-function", operator: { type: op.type, value: op.value } }) %}
+			# | (%binaryOp | %unaryOp) {% B.expressions.ops %}
 	
-parenthesis -> "(" _ expression _ ")" {% ([,, expr,,]) => ({type: "parenthesis", value: expr }) %}
+parenthesis -> "(" _ expression _ ")" {% B.parenthesis %}
 
-identifier -> %identifier {% ([{ type, value }]) => ({type, value}) %}
+identifier -> %identifier {% B.identifier %}
 
-literal -> number {% ([num]) => ({type: 'number', value: num}) %} 
-		 | string {% ([str]) => ({type: 'string', value: str}) %}
-		 | boolean {% ([boolean]) => ({type: "boolean", value: boolean}) %}
- 		 | tuple {% ([tuple]) => ({type: 'tuple', value: tuple}) %} 
- 		 | list {% ([list]) => ({type: 'list', value: list}) %} 
- 		 | record {% ([record]) => ({type: 'record', value: record}) %} 
+literal -> number {% B.literals.number %} 
+		 | string {% B.literals.string %}
+		 | boolean {% B.literals.boolean %}
+ 		 | tuple {% B.literals.tuple %} 
+ 		 | list {% B.literals.list %} 
+ 		 | record {% B.literals.record %} 
 		 | graph {% id %} 
 		 | graphPattern {% id %}
 
-assignment -> identifier _ "=" _ expression {% ([id,, equals,, expression]) => ({ type: "assignment", id, value: expression }) %}
+assignment -> identifier _ "=" _ expression {% B.assignment %}
 
-property -> (record | identifier | parenthesis | property ) %dot identifier {% ([[context],, value]) => ({type: "property", context, value }) %}
+property -> (record | identifier | parenthesis | property ) %dot identifier {% B.property %}
 
-operation -> algebraic {% ([math]) => ({type: 'math', ...math}) %} 
-		   | logic {% ([logic]) => ({type: 'logical', ...logic}) %} 
-		   | condition {% ([condition]) => ({type: 'conditional', ...condition}) %} 
-		   | composition {% ([composition]) => ({type: 'composition', ...composition}) %} 
-		   | concatenation {% ([concatenation]) => ({type: 'concatenation', ...concatenation}) %} 
-		   | graphQuery {% ([query]) => ({type: 'graph-query', ...query}) %} 
-		   | graphMutation {% ([mutation]) => ({type: 'graph-mutation', ...mutation}) %} 
+operation -> algebraic {% B.operations.algebraic %} 
+		   | logic {% B.operations.logic %} 
+		   | condition {% B.operations.conditional %} 
+		   | composition {% B.operations.composition %} 
+		   | concatenation {% B.operations.concatenation %} 
+		   | graphQuery {% B.operations.graphQuery %} 
+		   | graphMutation {% B.operations.graphMutation %} 
 		   
 	
 
 # ### CONTROL FLOW
 
-ifThenElse -> "if" __ expression __:+ "then" __ expression __:+ "else" __ expression {% ([ ,,condition,, ,,truthy,, ,,falsy]) => ({ type: "if-then-else", condition, truthy, falsy }) %}
-match -> "match" __ expression (__:+ %union __:+ expression _ "->" _ expression):+ (__:+ %union __:+ "otherwise" _ "->" _ expression):?
-{% ([,, expression, patterns, otherwise]) => ({ 
-	type: "match", 
-	expression,
-	patterns: patterns.map(([,,, evaluation,,,, value]) => ({ evaluation, value })), 
-	otherwise: otherwise ? otherwise[otherwise.length -1] : null 
-}) %}
-
+ifThenElse -> "if" __ expression __:+ "then" __ expression __:+ "else" __ expression {% B.ifThenElse %}
+match -> "match" __ expression (__:+ %union __:+ expression _ "->" _ expression):+ (__:+ %union __:+ "otherwise" _ "->" _ expression):? {% B.match %}
 
 
 # ### OPERATIONS
 # maybe use a Macro for this Union here?
-logic -> (identifier | literal | property | functionApplication | parenthesis) _ ("||" | "&&") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
-	   | "!" expression {% ([op, expression]) => ({operator: op.value, expression}) %}
+logic -> (identifier | literal | property | functionApplication | parenthesis) _ ("||" | "&&") _ expression {% B.andOr %}
+	   | "!" expression {% B.not %}
 	   
-algebraic -> (identifier | literal | property | functionApplication | parenthesis) _ ("+" | "-" | "*" | "/") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}	   
-condition -> (identifier | literal | property | functionApplication | parenthesis) _ ("<" | ">" | "<=" | ">=" | "==") _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
-composition -> (identifier | function | property | functionApplication | parenthesis) _ ("<<" | ">>" ) _ expression {% ([[left],, [op],, right]) => ({operator: op.value, left, right}) %}
-concatenation -> (identifier | literal | property | functionApplication | parenthesis) _ "<>" _ expression {% ([[left],, op,, right]) => ({operator: op.value, left, right}) %}
-graphQuery -> (identifier | graph | parenthesis) _ "|-" _ (identifier | graphPattern | parenthesis)  {% ([[left],, op,, [right]]) => ({operator: op.value, left, right}) %}
-graphMutation -> (identifier | graph | parenthesis) _ "-|" _ (identifier | graphPattern | parenthesis)  {% ([[left],, op,, [right]]) => ({operator: op.value, left, right}) %}
+algebraic -> (identifier | literal | property | functionApplication | parenthesis) _ ("+" | "-" | "*" | "/") _ expression {% B.algebraic %}	   
+condition -> (identifier | literal | property | functionApplication | parenthesis) _ ("<" | ">" | "<=" | ">=" | "==") _ expression {% B.condition %}
+composition -> (identifier | function | property | functionApplication | parenthesis) _ ("<<" | ">>" ) _ expression {% B.composition %}
+concatenation -> (identifier | literal | property | functionApplication | parenthesis) _ "<>" _ expression {% B.concatenation %}
+graphQuery -> (identifier | graph | parenthesis) _ "|-" _ (identifier | graphPattern | parenthesis)  {% B.graphQuery %}
+graphMutation -> (identifier | graph | parenthesis) _ "-|" _ (identifier | graphPattern | parenthesis)  {% B.graphMutation %}
 
 # ### FUNCTIONS
 
-arguments -> identifier (%ws __:* identifier):* {% ([arg, args]) => [arg.value, ...args.map(([,, a]) => a.value)] %}  
+arguments -> identifier (%ws __:* identifier):* {% B.fnArguments %}  
 		   
-parameters -> (%ws __:* parameter):+ {% ([params]) => params.map(([,, p]) => p) %}
+parameters -> (%ws __:* parameter):+ {% B.params %}
 parameter -> literal {% id %}
 		   | identifier {% id %}
  		   | parenthesis {% id %}
 		   
-function -> arguments (%ws __:*) "->" (%ws __:*) expression {% ([args,, arrow,, expression]) => ({ type: "function", args, value: expression }) %}
-functionApplication -> identifier _ "<|":? parameters {% ([id,, pipeline, params]) => ({ type: "function-application", id, params }) %}
-					 | parameters "|>" identifier {% ([params, pipeline, id]) => ({ type: "function-application", id, params }) %}
+function -> arguments (%ws __:*) "->" (%ws __:*) expression {% B.func %}
+functionApplication -> identifier _ "<|":? parameters {% B.backApply %}
+					 | parameters "|>" identifier {% B.forwardApply %}
 
 
 
 
 # ### DATA TYPES
 
-tuple -> "(" _ expression _ ("," _ expression _):+ ")" {% ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)] %}
+tuple -> "(" _ expression _ ("," _ expression _):+ ")" {% B.tuple %}
 list -> "[" _ "]" {% () => [] %}
- 	  | "[" _ expression _ ("," _ expression _):* "]" {% ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)] %}
+ 	  | "[" _ expression _ ("," _ expression _):* "]" {% B.list %}
 record -> "{" _ "}" {% () => ({ }) %}
- 		| "{" _ key _ ":" _ expression _ (","  _ key _ ":" _ expression _):* "}" 
-			{% ([,, key,, colon,, value,, rest,]) => [{ key, value }, ...rest.map(([,,k,,,,v,]) => ({ key: k, value: v })) ] %}
+ 		| "{" _ key _ ":" _ expression _ (","  _ key _ ":" _ expression _):* "}" {% B.record %}
 
-key -> identifier {% ([id]) => id.value %}
+key -> identifier {% B.key %}
  	 #| string {% id %}
  	 #| functionApplication {% id %}
 
 
-graph -> %lchevron __:* %rchevron {% _  => ({ type: 'graph', value: [] }) %}
-	   | %lchevron __:* (graphPattern | identifier | parenthesis) __:* ("," __:* (graphPattern | identifier | parenthesis) __:*):* %rchevron 
-			{% ([,, [pat],, rest,]) => ({ type: 'graph', value: [pat, ...rest.map(([,, [p],]) => p)] }) %}
+graph -> %lchevron __:* %rchevron {% B.emptyGraph %}
+	   | %lchevron __:* (graphPattern | identifier | parenthesis) __:* ("," __:* (graphPattern | identifier | parenthesis) __:*):* %rchevron {% B.graph %}
 
 gNode -> "(" _ (":" identifier):* ")" {% ([,, labels]) => ({ type: "graph-node", value: { type: "any" }, labels: labels.map(([, label]) => label.value) }) %}
        | "(" identifier _ (":" identifier):* ")" {% ([, id ,, labels, ]) => ({ type: "graph-node", value: id, labels: labels.map(([, label]) => label.value) }) %}
@@ -166,9 +155,9 @@ graphPattern -> gNode gRel gNode (gRel gNode):*
 
 # ### PRIMITIVES
 
-string -> %string {% ([{ value }]) => value.slice(1, value.length -1) %}
-number -> %digits {% ([{ value }]) => +value %} 
- 		| %digits %dot %digits {% ([whole,, fraction]) => +(whole.value + "." + fraction.value) %} 
+string -> %string {% B.string %}
+number -> %digits {% B.number %} 
+ 		| %digits %dot %digits {% B.fraction %} 
 boolean -> %true  {% _ => true %} 
 		 | %false {% _ => false %}
 
