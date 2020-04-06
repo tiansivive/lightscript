@@ -10,7 +10,7 @@
 		larror: "<-",
 		rchevron: ">-",
 		lchevron: "-<",
-	binaryOp: ["+", "-", "*", "/", "<", ">", "<=", ">=", "==", "&&", "||", "|>", "<|", ">>", "<<", "<>", "|-", "-|"],
+		binaryOp: ["+", "-", "*", "/", "<", ">", "<=", ">=", "==", "&&", "||", "|>", "<|", ">>", "<<", "<>", "|-", "-|"],
 		unaryOp: ["!", "++", "--", "?"],
 		assignment: "=",
 		delimiter: ["{", "}", "[", "]", "(", ")"],				
@@ -77,7 +77,7 @@ property -> (record | identifier | parenthesis | property ) %dot identifier {% B
 
 operation -> algebraic {% B.operations.algebraic %} 
 		   | logic {% B.operations.logic %} 
-		   | condition {% B.operations.conditional %} 
+		   | condition {% B.operations.condition %} 
 		   | composition {% B.operations.composition %} 
 		   | concatenation {% B.operations.concatenation %} 
 		   | graphQuery {% B.operations.graphQuery %} 
@@ -124,7 +124,7 @@ functionApplication -> identifier _ "<|":? parameters {% B.backApply %}
 tuple -> "(" _ expression _ ("," _ expression _):+ ")" {% B.tuple %}
 list -> "[" _ "]" {% () => [] %}
  	  | "[" _ expression _ ("," _ expression _):* "]" {% B.list %}
-record -> "{" _ "}" {% () => ({ }) %}
+record -> "{" _ "}" {% () => [] %}
  		| "{" _ key _ ":" _ expression _ (","  _ key _ ":" _ expression _):* "}" {% B.record %}
 
 key -> identifier {% B.key %}

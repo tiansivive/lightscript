@@ -1,5 +1,5 @@
 import * as I from './identifiers'
-import * as O from './literals/object'
+import * as R from './literals/record'
 import * as L from './literals/list'
 import * as T from './literals/tuple'
 import * as G from './literals/graph'
@@ -63,7 +63,7 @@ export const evaluate = (expr, scope) => {
     case 'list':
       return { value: L.create(expr.value, scope), scope }
     case 'record':
-      return { value: O.create(expr.value, scope), scope }
+      return { value: R.create(expr.value, scope), scope }
     case 'property':
       return property(expr, scope)
     case 'graph':

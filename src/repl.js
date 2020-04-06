@@ -19,19 +19,24 @@ const rl = readline.createInterface({
 
 
 rl.on('line', line => {
-    
+
+  parser = new Parser(grammar)  
   parser.feed(line)
 
   const ast = parser.results[0]
   const ambiguity = parser.results.length
 
-  const res = evaluate(ast, scope)
-  scope = res.scope
-  parser = new Parser(grammar)
-  
-  
-  process.env.DEBUG 
-    ? console.log('\nEval:\n', res.value[0])
-    : console.log(res.value[0])
-  if(process.env.DEBUG) console.log('scope:', res.scope, '\n-------------------\n')
+
+  try{
+    const res = evaluate(ast, scope)
+    scope = res.scope
+
+    process.env.DEBUG 
+      ? console.log('\nEval:\n', res.value[0])
+      : console.log(res.value[0])
+    if(process.env.DEBUG) console.log('scope:', res.scope, '\n-------------------\n')
+  }catch(err){
+    console.error(err.message)
+  }
+
 })

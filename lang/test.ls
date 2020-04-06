@@ -1,13 +1,22 @@
-fac = x -> match x
-  | 0 -> 1
-  | otherwise -> x * fac (x - 1)
-
-fac 0
-fac 4
-fac 5
 
 
-graph = -< (a:Label)-[r]->(b:Some), (c)<-[r]-(d:Some) , (e:Label)-[r]-(f:Other), (g:Some)-[r]->(h) >- |- (x:Other)-[rel]-(y)
+export (apply, flip, map, fold, flap, filter) where
 
-pat = (xx)-[rr]-(yy)
 
+apply = x -> f -> f x
+flip = f -> y x -> f x y
+flipCurried = f -> y -> x -> f x y
+
+@with h::tail = collection, x = f h, rest = map f tail
+map = f -> collection -> if empty tail then collection else x::rest
+
+
+@with h::tail = collection, value = f start h
+fold = f -> start -> collection -> if empty tail then start else fold f value tail
+
+@with fn = apply x
+flap = x -> collection -> map fn collection
+
+
+@with h::tail = collection, rest = filter predicate tail
+filter = predicate -> collection -> if predicate h then h::rest else rest
