@@ -26,6 +26,11 @@ map = f -> collection -> if empty tail then collection else x::rest
 
 
 @with h::tail = collection, value = f start h
+@throw match
+        | typeof collection != 'collection' -> NotCollection
+        | typeof f != 'function' -> NotFunction
+@effect log(f)       
+@type (b a -> b) -> b -> Collection a  
 fold = f -> start -> collection -> if empty tail then start else fold f value tail
 
 @with fn = apply x

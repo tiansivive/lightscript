@@ -1,3 +1,5 @@
+import { Parser, Grammar } from 'nearley'
+import lightscript from '../lightscript'
 
 // SCRIPT
 export const script = ([, [imports], head, tail]) => {
@@ -79,6 +81,21 @@ export const func = ([args,, arrow,, expression]) => ({ type: "function", args, 
 export const backApply = ([id,, pipeline, params]) => ({ type: "function-application", id, params }) 
 export const forwardApply = ([params, pipeline, id]) => ({ type: "function-application", id, params })
 
+export const opFunc = ([[op],, expr]) => {
+
+  const grammar = Grammar.fromCompiled(lightscript)
+  const scope = { identifiers: [] }
+  const parser = new Parser(grammar)
+
+  parser.feed(expr ? '__opFunc_p1__ -> __opFunc_p1__ ')
+
+  const ast = parser.results[0]
+  const ambiguity = parser.results.length
+
+ return ({ 
+  type: "function", 
+  args: expr ? ['__opFunc_p1__'] : ['__opf_p1__', '__opf_p2__'], value: })
+ }
 
 export const tuple = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)]
 export const list = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)]
