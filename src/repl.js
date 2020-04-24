@@ -3,7 +3,7 @@ import readline from 'readline'
 import { Parser, Grammar } from 'nearley'
 import { evaluate } from './evaluation'
 
-import lightscript from '../grammar/lightscript'
+import lightscript from '../bin/lightscript'
 
 
 const grammar = Grammar.fromCompiled(lightscript)

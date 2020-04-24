@@ -7,14 +7,15 @@
     "start": "babel-node src/index.js",
     "repl": "babel-node src/repl.js",
     "build": "babel src -d dist --source-maps",
-    "nearley": "nearleyc grammar/lightscript.ne -o grammar/lightscript.js",
-    "test-nearley": "nearleyc grammar/test.ne -o grammar/lightscript.js",
-    "test-grammar": "nearley-test grammar/lightscript.js",
+    "nearley": "nearleyc grammar/lightscript.ne -o bin/lightscript.js && cp -rf grammar/processors bin",
+    "test-nearley": "nearleyc grammar/test.ne -o bin/lightscript.js",
+    "test-grammar": "nearley-test bin/lightscript.js",
     "railroad": "nearley-railroad grammar/lightscript.ne -o bin/grammar.html"
   },
   "author": "",
   "license": "ISC",
   "standard": {
+    "parser": "babel-eslint",
     "ignore": [
       "node_modules",
       "dist",
@@ -40,7 +41,14 @@
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/node": "^7.6.1",
+    "@babel/plugin-proposal-do-expressions": "^7.8.3",
+    "@babel/plugin-proposal-partial-application": "^7.8.3",
+    "@babel/plugin-proposal-pipeline-operator": "^7.8.3",
+    "@babel/plugin-proposal-throw-expressions": "^7.8.3",
     "@babel/preset-env": "^7.6.0",
+    "babel-eslint": "^11.0.0-beta.2",
+    "eslint": "^6.8.0",
+    "eslint-plugin-babel": "^5.3.0",
     "jest": "^24.9.0",
     "standard": "^14.3.0"
   }

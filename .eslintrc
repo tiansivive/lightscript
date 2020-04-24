@@ -1,0 +1,10 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module",
+    "babelOptions": {
+      "configFile": "./babel.config.json"
+    }
+  },
+  "plugins": ["babel"]
+}
