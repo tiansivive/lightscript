@@ -12,6 +12,7 @@ expression -> identifier {% id %}
 			| match {% B.expressions.match %}
 			| function {% id %}
  			| functionApplication {% id %}
+			| opFunction {% id %} 
 			# | (%binaryOp | %unaryOp) {% B.expressions.ops %}
 	
 parenthesis -> "(" _ expression _ ")" {% B.parenthesis %}
@@ -36,6 +37,7 @@ function -> arguments (%ws __:*) "->" (%ws __:*) expression {% B.func %}
 functionApplication -> identifier _ "<|":? parameters {% B.backApply %}
 					 | parameters "|>" identifier {% B.forwardApply %}
 
+opFunction -> ("+" | "-" | "*" | "/" | "<" | ">" | "<=" | ">=" | "==" | "&&" | "||" | ">>" | "<<" | "<>") _ expression:? {% B.opFunction %}
 
 
 # ### OPERATIONS
@@ -53,6 +55,5 @@ condition -> (identifier | literal | property | functionApplication | parenthesi
 composition -> (identifier | function | property | functionApplication | parenthesis) _ ("<<" | ">>" ) _ expression {% B.composition %}
 concatenation -> (identifier | literal | property | functionApplication | parenthesis) _ "<>" _ expression {% B.concatenation %}
 
-# opFunction -> ("+" | "-" | "*" | "/" | "<" | ">" | "<=" | ">=" | "==" | "&&" | "||" | ">>" | "<<" | "<>") _ expression:? {% B.opFunction %}
 
 

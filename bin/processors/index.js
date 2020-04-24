@@ -80,22 +80,45 @@ export const func = ([args,, arrow,, expression]) => ({ type: "function", args, 
 export const backApply = ([id,, pipeline, params]) => ({ type: "function-application", id, params }) 
 export const forwardApply = ([params, pipeline, id]) => ({ type: "function-application", id, params })
 
-// export const opFunc = ([[op],, expr]) => {
+export const opFunction = ([[op],, expr]) => {
+  const type = operator => {
+    switch(operator){
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+      return 'math'
+    case '<':
+    case '<=':
+    case '>':
+    case '>=':
+    case '==':
+      return 'conditional'
+    case '<<':
+    case '>>':
+      return 'composition'
+    case '&&':
+    case '||':
+      return 'logical'
+    case '<>':
+      return 'concatenation'
+  }
+}
 
-//   const grammar = Grammar.fromCompiled(lightscript)
-//   const scope = { identifiers: [] }
-//   const parser = new Parser(grammar)
+  const args = ['x']
+  if(!expr) args.push('y')
 
-//   // parser.feed(expr ? '__opFunc_p1__ -> __opFunc_p1__ ')
-
-//   const ast = parser.results[0]
-//   const ambiguity = parser.results.length
-
-//  return ({ 
-//   type: "function", 
-//   args: expr ? ['__opFunc_p1__'] : ['__opf_p1__', '__opf_p2__'], value: })
-//  })
-// }
+  return { 
+    type: 'function',
+    args,
+    value: {
+      type: type(op.value),
+      operator: op.value,
+      left: { type: 'identifier', value: 'x' },
+      right: expr ? expr : { type: 'identifier', value: 'y' },
+    }
+  }
+}
 
 export const tuple = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)]
 export const list = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)]
