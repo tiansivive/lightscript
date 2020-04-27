@@ -16,6 +16,21 @@ export const create = (expr, scope) => {
   }
 }
 
+
+const applyAux = (fn, params, boundArgs, scope) => {
+  if(params.length > fn.args.length){
+    if(fn.body.type !== 'function') throw new Error (`Tried to apply too many arguments to function ${id.value}`)
+
+    const body = { type: 'function-application', params: params.slice(boundArgs.length), id: fn.body }
+    const res = evaluate(body, { identifiers: updatedIds })
+
+    return { value: res.value, scope }
+  } 
+  
+  const res = evaluate(fn.body, { identifiers: updatedIds })
+  return { value: res.value, scope }
+}
+
 export const apply = (id, params, scope) => {
 
   //const name = `fn-${id.value}` || 'fn-anonymous' 
@@ -35,6 +50,29 @@ export const apply = (id, params, scope) => {
     .concat(boundArgs)
 
 
+  if(fn.foreign){
+
+    const jsTransformed = boundArgs.map(a => {
+      if(a.value.type){
+
+        if(a.value.type === 'function'){
+         
+          return function(...args){
+            const bound = a.value.args.map((arg, i) => ({ id: arg, value: args[i] }))
+            const res = evaluate(a.value.body, { 
+              identifiers: updatedIds
+                .filter(({ id }) => !bound.some(a => a.id === id))
+                .concat(bound)
+            })
+            return res.value
+          }
+        }
+      }
+      return a.value
+    })
+    return { value: fn.body(...jsTransformed), scope }
+  }  
+
   if(params.length > fn.args.length){
     if(fn.body.type !== 'function') throw new Error (`Tried to apply too many arguments to function ${id.value}`)
 
@@ -47,3 +85,4 @@ export const apply = (id, params, scope) => {
   const res = evaluate(fn.body, { identifiers: updatedIds })
   return { value: res.value, scope }
 }
+

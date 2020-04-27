@@ -2,19 +2,24 @@
 
 // SCRIPT
 export const script = ([, [imports], head, tail]) => {
-	const arr = tail ? tail.map(([ expr]) => expr) : []
-	return { 
-    type: "script", 
-    val: [ 
+  const arr = tail ? tail.map(([ expr]) => expr) : []
+  const val = !head 
+    ? arr
+    :  [ 
       { type: 'expression', value: head }, 
       ...arr
     ]
+
+	return { 
+    type: "script", 
+    imports,
+    val
   }
 } 
 
 export const wrap = ([,,e]) => ({ type: 'expression', value: e })
 
-export const importModule = ([,, id,,,, file]) => ({ type: "import", id, file })
+export const importModule = ([, ffi,, path,,,, id]) => ({ type: "import", id, path, foreign: !!(ffi && ffi[1]) })
 export const exportModule = ([,, expr]) => ({ type: "export", value: expr })
 
 
@@ -77,7 +82,7 @@ export const fnArguments = ([arg, args]) => [arg.value, ...args.map(([,, a]) => 
 export const params = ([params]) => params.map(([,, p]) => p)
 
 export const func = ([args,, arrow,, expression]) => ({ type: "function", args, value: expression })
-export const backApply = ([id,, pipeline, params]) => ({ type: "function-application", id, params }) 
+export const backApply = ([[id],, pipeline, params]) => ({ type: "function-application", id, params }) 
 export const forwardApply = ([params, pipeline, id]) => ({ type: "function-application", id, params })
 
 export const opFunction = ([[op],, expr]) => {
@@ -108,16 +113,14 @@ export const opFunction = ([[op],, expr]) => {
   const args = ['x']
   if(!expr) args.push('y')
 
-  return { 
-    type: 'function',
-    args,
-    value: {
-      type: type(op.value),
-      operator: op.value,
-      left: { type: 'identifier', value: 'x' },
-      right: expr ? expr : { type: 'identifier', value: 'y' },
-    }
+  const body = {
+    type: type(op.value),
+    operator: op.value,
+    left: { type: 'identifier', value: 'x' },
+    right: expr ? expr : { type: 'identifier', value: 'y' },
   }
+
+  return func([args,,,, body])
 }
 
 export const tuple = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)]

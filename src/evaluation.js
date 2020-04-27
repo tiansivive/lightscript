@@ -9,7 +9,7 @@ import * as CF from './control-flow/cf'
 import * as OP from './operations/operations'
 import * as GO from './operations/graph'
 
-
+import * as M from './modules'
 
 /**
  * 
@@ -27,7 +27,7 @@ const assignment = ({ id, value }, scope) => {
 }
 
 
-const property = ({ id, value, context }, scope) => {
+const property = ({ id, value, context, foreign }, scope) => {
 
   const evaluated = evaluate(context, scope).value
   const result = evaluated.type === 'graph' ? I.find(value.value, evaluated.closure) : evaluated[value.value]
@@ -103,14 +103,19 @@ export const evaluate = (expr, scope) => {
       return CF.ifThenElse(expr, scope)
     case 'match':
       return CF.patternMatching(expr, scope)
-      
+    
+    case 'import':
+      return M.importer(expr, scope)  
+
     case 'script':
       return expr.val.reduce(
         ({ value, scope }, expression) => {
           const res = evaluate(expression, scope) 
           return { value: [...value, res.value], scope: res.scope }
         }, 
-        { value: [], scope }
+        { value: [], scope: !expr.imports ? scope : evaluate(expr.imports[0], scope).scope }
       )
+    default:
+      throw new Error(`Unrecognized type: ${expr.type}\n, in expr: ${JSON.stringify(expr)}`)
   }
 }

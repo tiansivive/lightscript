@@ -40,3 +40,7 @@ rl.on('line', line => {
   }
 
 })
+
+import loda from 'lodash'
+
+2 + 2

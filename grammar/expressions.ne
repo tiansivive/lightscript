@@ -34,7 +34,7 @@ parameter -> literal {% id %}
  		   | parenthesis {% id %}
 		   
 function -> arguments (%ws __:*) "->" (%ws __:*) expression {% B.func %}
-functionApplication -> identifier _ "<|":? parameters {% B.backApply %}
+functionApplication -> ( identifier | property | parenthesis) _ "<|":? parameters {% B.backApply %}
 					 | parameters "|>" identifier {% B.forwardApply %}
 
 opFunction -> ("+" | "-" | "*" | "/" | "<" | ">" | "<=" | ">=" | "==" | "&&" | "||" | ">>" | "<<" | "<>") _ expression:? {% B.opFunction %}
