@@ -27,12 +27,14 @@ export const expressions = {
   literal: ([literal]) => ({ type: "literal", value: literal }),
   ifThenElse: ([expr]) => ({ type: "control-flow", value: expr }),
   match: ([expr]) => ({ type: "control-flow", value: expr }),
-  ops: ([[op]]) => ({ type: "operator-function", operator: { type: op.type, value: op.value } })
+  ops: ([[op]]) => ({ type: "operator-function", operator: { type: op.type, value: op.value } }),
+  decorate: ([decorator,, expr]) => ({ ...expr, decorator })
 }
 
 export const parenthesis = ([,, expr,,]) => ({type: "parenthesis", value: expr })
 
 export const identifier = ([{ type, value }]) => ({type, value})
+export const binding = ([id,,,, expr]) => ({ type: 'binding', id, value: expr })
 
 export const literals = {
   number: ([num]) => ({type: 'number', value: num}),
@@ -81,6 +83,7 @@ export const graphMutation = ([[left],, op,, [right]]) => ({ operator: op.value,
 export const fnArguments = ([arg, args]) => [arg.value, ...args.map(([,, a]) => a.value)]
 export const params = ([params]) => params.map(([,, p]) => p)
 
+export const decorator = ([, id,, expr, rest = []]) => ({ type: 'decorator', value: [expr, ...rest.map(([,,, expr]) => expr)] })
 export const func = ([args,, arrow,, expression]) => ({ type: "function", args, value: expression })
 export const backApply = ([[id],, pipeline, params]) => ({ type: "function-application", id, params }) 
 export const forwardApply = ([params, pipeline, id]) => ({ type: "function-application", id, params })

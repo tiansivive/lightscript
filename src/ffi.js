@@ -27,5 +27,16 @@ export const transforms = {
   },
   toJS: (val, scope) => {
 
+    if(typeof val === 'function') return (...args) => {
+      const bound = val.args.map((arg, i) => ({ id: arg, value: args[i] }))
+      const res = evaluate(val.body, { 
+        identifiers: scope.identifiers
+          .filter(({ id }) => !bound.some(a => a.id === id))
+          .concat(bound)
+        })
+      return res.value
+    }
+
+
   }
 } 

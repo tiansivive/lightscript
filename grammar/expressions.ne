@@ -13,12 +13,16 @@ expression -> identifier {% id %}
 			| function {% id %}
  			| functionApplication {% id %}
 			| opFunction {% id %} 
-			# | (%binaryOp | %unaryOp) {% B.expressions.ops %}
+			| do {% id %}
+			| decorator %nl expression {% B.expressions.decorate %}
 	
 parenthesis -> "(" _ expression _ ")" {% B.parenthesis %}
 
 assignment -> identifier _ "=" _ expression {% B.assignment %}
 property -> (record | identifier | parenthesis | property ) %dot identifier {% B.property %}
+
+binding -> identifier __:* "<-" __:* expression {% B.binding %}
+do -> "do" __ expression (__:* ("," | %nl) __:* ( expression | binding )):* {% B.doExpressions %}
 
 # ### CONTROL FLOW
 ifThenElse -> "if" __ expression __:+ "then" __ expression __:+ "else" __ expression {% B.ifThenElse %}
@@ -39,6 +43,8 @@ functionApplication -> ( identifier | property | parenthesis) _ "<|":? parameter
 
 opFunction -> ("+" | "-" | "*" | "/" | "<" | ">" | "<=" | ">=" | "==" | "&&" | "||" | ">>" | "<<" | "<>") _ expression:? {% B.opFunction %}
 
+decorator -> "@" identifier {% B.decorator %}
+					 | "@" identifier __:+ expression (__:* "," __:* expression):* {% B.decorator %}
 
 # ### OPERATIONS
 operation -> algebraic {% B.operations.algebraic %} 

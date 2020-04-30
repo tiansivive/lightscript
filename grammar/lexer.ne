@@ -3,7 +3,7 @@
 	const B = require('./processors/index.js')
 	const lexer = moo.compile({
 		
-		keywords: /(?:if|then|else|do|unless|where|match|when|case|of|otherwise|let|in|not|and|or|import|export|from|to|module|as|type|instance)\b/,
+		keywords: /(?:if|then|else|do|unless|where|match|when|case|of|otherwise|in|not|and|or|import|export|from|to|module|as|type|instance|@)\b/,
 		true:   /(?:true|on|active|yes|enabled)\b/,
 		false:  /(?:false|off|inactive|no|disabled)\b/,
 		rarrow: "->",
@@ -28,3 +28,7 @@
 %}
 
 @lexer lexer
+
+# Whitespace
+_ -> (null | %ws | %nl) {% _ => null %}
+__ -> (%ws|%nl) {% _ => null %}

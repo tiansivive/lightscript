@@ -18,10 +18,12 @@ import * as M from './modules'
  * 
  * @return {{ value: *, scope: Scope }}
  */
-const assignment = ({ id, value }, scope) => {
+const assignment = ({ id, value, decorator}, scope) => {
 
   const result = evaluate(value, scope)
-  const identifiers = [{ id: id.value, value: result.value }, ...scope.identifiers]
+  const identifiers = decorator && result.value.type === 'function' 
+    ? [{ id: id.value, value: {...result.value, decorator: decorator.value } }, ...scope.identifiers]
+    : [{ id: id.value, value: result.value }, ...scope.identifiers]
 
   return { value: result.value, scope: { identifiers } }
 }
@@ -66,14 +68,14 @@ export const evaluate = (expr, scope) => {
       return { value: R.create(expr.value, scope), scope }
     case 'property':
       return property(expr, scope)
-    case 'graph':
-      return { value: G.create(expr, scope), scope } 
-    case 'graph-pattern': 
-      return { value: GP.create(expr, scope), scope }  
-    case 'graph-node': 
-      return { value: GP.node(expr), scope }  
-    case 'graph-edge': 
-      return { value: GP.relationship(expr), scope }  
+    // case 'graph':
+    //   return { value: G.create(expr, scope), scope } 
+    // case 'graph-pattern': 
+    //   return { value: GP.create(expr, scope), scope }  
+    // case 'graph-node': 
+    //   return { value: GP.node(expr), scope }  
+    // case 'graph-edge': 
+    //   return { value: GP.relationship(expr), scope }  
    
     case 'identifier': 
       return { value: I.find(expr.value, scope), scope }

@@ -17,11 +17,19 @@ const rl = readline.createInterface({
   terminal: false
 });
 
-
+let input = ''
+rl.prompt()
 rl.on('line', line => {
 
+  if(line.startsWith('@')){
+    input += (line + '\n') 
+    rl.prompt()
+    return
+  }
+
+  input += line
   parser = new Parser(grammar)  
-  parser.feed(line)
+  parser.feed(input)
 
   const ast = parser.results[0]
   const ambiguity = parser.results.length
@@ -37,10 +45,10 @@ rl.on('line', line => {
     if(process.env.DEBUG) console.log('scope:', res.scope, '\n-------------------\n')
   }catch(err){
     console.error(err.message)
+  }finally{
+    input = ''
+    rl.prompt()
   }
 
 })
 
-import loda from 'lodash'
-
-2 + 2

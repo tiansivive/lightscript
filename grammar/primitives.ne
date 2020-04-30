@@ -11,7 +11,5 @@ boolean -> %true  {% _ => true %}
 		 | %false {% _ => false %}
 
 
-# Whitespace
-_ -> (null | %ws | %nl) {% _ => null %}
-__ -> (%ws|%nl) {% _ => null %}
+
 

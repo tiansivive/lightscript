@@ -1,7 +1,9 @@
 import { evaluate } from './evaluation'
 import { transforms } from './ffi'
 
-export const importer = ({ id, path, foreign }, scope) => {
+
+
+const importFromJS = (id, path, scope) => {
 
   const module = require(path)
   const value = Object
@@ -20,10 +22,15 @@ export const importer = ({ id, path, foreign }, scope) => {
       identifiers: scope.identifiers.concat([{ 
         id: id.value, 
         value, 
-        foreign
+        foreign: true
       }])
     },
   }
 }
-// import foreign 'lodash' as Lo
-// Lo.map [1,2] (x y -> x + y)
+
+export const importer = ({ id, path, foreign }, scope) => {
+
+  if(foreign) return importFromJS(id, path, scope)
+
+  throw new Error('native module import not supported yet')
+}
