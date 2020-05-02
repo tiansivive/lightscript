@@ -20,7 +20,7 @@
 		ws: /[ \t]+/,
 		nl:  { match: /\n+/, lineBreaks: true },
 		dot: /\./,		
-		identifier: /[a-zA-Z_]\w*/,
+		identifier: /[a-zA-Z_$]\w*/,
 		digits:  /[0-9]+/,
 		string:  /'(?:\\["\\]|[^\n"\\])*'|"(?:\\["\\]|[^\n"\\])*"/
 

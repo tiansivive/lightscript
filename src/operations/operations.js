@@ -87,3 +87,18 @@ export const concatenation = (expr, scope) => {
       return { ...left, ...right }
   }
 }
+
+
+
+export const composition = (expr, scope) => {
+
+  const { value: left } = evaluate(expr.left, scope)
+  const { value: right } = evaluate(expr.right, scope)
+
+  if (!left.type || left.type !== 'function') throw new Error(`Cannot use composition with left type: ${left.type || typeof left}`)
+  if (!right.type || right.type !== 'function') throw new Error(`Cannot use composition with right type: ${right.type || typeof right}`)
+
+
+  
+
+}

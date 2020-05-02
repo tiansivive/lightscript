@@ -1,4 +1,6 @@
 
+import { map, flatten, pipe, uniqBy, concat } from 'lodash/fp'
+
 import { evaluate } from '../evaluation'
 import { transforms } from '../ffi'
 
@@ -31,10 +33,43 @@ export const apply = (id, params, scope) => {
 
   if(params.length < fn.args.length) throw new Error (`Not enough arguments when applying ${id.type === 'identifier' ? id.value : 'anonymous fn'}`)
   
-  const boundArgs = fn.args.map((arg, i) => ({ id: arg, value: evaluate(params[i], scope).value }))
-  const updatedIds = scope.identifiers
+  const boundArgs = fn.args.map((arg, i) => ({ 
+    id: arg, 
+    value: params[i].type ? evaluate(params[i], scope).value : params[i]
+  }))
+  let updatedIds = scope.identifiers
     .filter(({ id }) => !boundArgs.some(a => a.id === id))
     .concat(boundArgs)
+
+  
+  if(fn.decorator){
+
+    
+    const injected = fn.decorator.value.reduce((acc, expr, i) => {
+      const { 
+        value, 
+        scope = { identifiers: [] }
+      } = evaluate(expr, { identifiers: acc.identifiers })
+      
+      return {
+        props: [...acc.props, value],
+        identifiers: acc.identifiers.concat(scope.identifiers)
+      }
+      
+    }, { identifiers: [], props: [] })
+    
+    const decorated = apply(fn.decorator.id, [injected.props], scope)
+  
+
+    //TODO: evaluate decorator fn by passing in evals as args
+    updatedIds = pipe(
+      concat(injected.identifiers),
+      uniqBy('id'),
+      concat(decorated.value.map((v, i) => ({ id: `$${i + 1}`, value: v })))
+    )(updatedIds)
+
+    
+  }
 
 
   if(fn.foreign){

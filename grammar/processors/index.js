@@ -83,7 +83,7 @@ export const graphMutation = ([[left],, op,, [right]]) => ({ operator: op.value,
 export const fnArguments = ([arg, args]) => [arg.value, ...args.map(([,, a]) => a.value)]
 export const params = ([params]) => params.map(([,, p]) => p)
 
-export const decorator = ([, id,, expr, rest = []]) => ({ type: 'decorator', value: [expr, ...rest.map(([,,, expr]) => expr)] })
+export const decorator = ([, id,, expr, rest = []]) => ({ type: 'decorator', id, value: [expr, ...rest.map(([,,, expr]) => expr)] })
 export const func = ([args,, arrow,, expression]) => ({ type: "function", args, value: expression })
 export const backApply = ([[id],, pipeline, params]) => ({ type: "function-application", id, params }) 
 export const forwardApply = ([params, pipeline, id]) => ({ type: "function-application", id, params })

@@ -40,7 +40,6 @@ result = do
 
 
 
-let = props -> props 
 
 
 #@ is basically this: f -> args -> fn -> f (...(concat args (fn f args)))  
@@ -54,6 +53,7 @@ map = f -> collection -> if empty t then collection else x <> rest
 model = x + constant
 
 
+let = _ -> [2] 
 @let x = 1
 add1 = y -> y + x
 

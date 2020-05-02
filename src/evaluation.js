@@ -18,11 +18,23 @@ import * as M from './modules'
  * 
  * @return {{ value: *, scope: Scope }}
  */
-const assignment = ({ id, value, decorator}, scope) => {
+const assignment = ({ id, value, decorator }, scope) => {
 
   const result = evaluate(value, scope)
   const identifiers = decorator && result.value.type === 'function' 
-    ? [{ id: id.value, value: {...result.value, decorator: decorator.value } }, ...scope.identifiers]
+    ? [
+        { 
+          id: id.value, 
+          value: {
+            ...result.value, 
+            decorator: { 
+              id: decorator.id, 
+              value: decorator.value
+            }
+          }
+        },
+        ...scope.identifiers
+      ]
     : [{ id: id.value, value: result.value }, ...scope.identifiers]
 
   return { value: result.value, scope: { identifiers } }
@@ -90,6 +102,8 @@ export const evaluate = (expr, scope) => {
       return { value: OP.conditional(expr, scope), scope }
     case 'concatenation':
       return { value: OP.concatenation(expr, scope), scope }
+    case 'composition':
+      return { value: OP.composition(expr, scope), scope }
     case 'graph-query':
       return { value: GO.query(expr, scope), scope }
     case 'graph-mutation':
