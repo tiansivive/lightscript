@@ -94,8 +94,13 @@ export const apply = (id, params, scope) => {
   if(params.length > fn.args.length){
     if(fn.body.type !== 'function') throw new Error (`Tried to apply too many arguments to function ${id.value}`)
 
-    const body = { type: 'function-application', params: params.slice(boundArgs.length), id: fn.body }
-    const res = evaluate(body, { identifiers: updatedIds })
+
+    const { value: curriedFn} = evaluate(fn.body, { identifiers: updatedIds })
+    const res = apply(
+      curriedFn, 
+      params.slice(boundArgs.length), 
+      { identifiers: updatedIds }
+    )
 
     return { value: res.value, scope }
   } 
