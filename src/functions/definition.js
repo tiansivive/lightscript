@@ -22,7 +22,7 @@ export const create = (expr, scope) => {
 
 export const apply = (id, params, scope) => {
 
-  const { value: fn } = evaluate(id, scope)
+  const { value: fn } = id.type === 'function' ? { value: id } : evaluate(id, scope)
 
   if(process.env.DEBUG){
     console.log('function application')
@@ -43,8 +43,6 @@ export const apply = (id, params, scope) => {
 
   
   if(fn.decorator){
-
-    
     const injected = fn.decorator.value.reduce((acc, expr, i) => {
       const { 
         value, 
@@ -79,6 +77,12 @@ export const apply = (id, params, scope) => {
     )
     return { value: fn.body(...jsTransformed), scope }
   }  
+
+  if(fn.composed){
+     const next = apply(fn.first, params, scope)
+     const res = apply(fn.second, [next.value], next.scope)
+     return { value: res.value, scope }
+  }
 
   if(params.length > fn.args.length){
     if(fn.body.type !== 'function') throw new Error (`Tried to apply too many arguments to function ${id.value}`)

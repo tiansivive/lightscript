@@ -95,10 +95,18 @@ export const composition = (expr, scope) => {
   const { value: left } = evaluate(expr.left, scope)
   const { value: right } = evaluate(expr.right, scope)
 
-  if (!left.type || left.type !== 'function') throw new Error(`Cannot use composition with left type: ${left.type || typeof left}`)
-  if (!right.type || right.type !== 'function') throw new Error(`Cannot use composition with right type: ${right.type || typeof right}`)
+  if (!left.type || (left.type !== 'function' && left.type !== 'composed-function')) throw new Error(`Cannot use composition with left type: ${left.type || typeof left}`)
+  if (!right.type || (right.type !== 'function' && right.type !== 'composed-function')) throw new Error(`Cannot use composition with right type: ${right.type || typeof right}`)
 
 
-  
-
+  // f = x -> x + 1
+  // g = y -> y + 1
+  // fg = f >> g
+  return { 
+    type: 'function',
+    composed: true,
+    args: left.args,
+    first: expr.operator === '>>' ? left : right,
+    second: expr.operator === '>>' ? right : left,
+  }
 }
