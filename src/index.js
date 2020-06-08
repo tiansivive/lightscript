@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 
 import { evaluate } from './evaluation'
 
-import lightscript from '../grammar/lightscript'
+import lightscript from '../bin/lightscript'
 
 // Create a Parser object from our grammar.
 const parser = new Parser(Grammar.fromCompiled(lightscript))

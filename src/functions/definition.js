@@ -37,7 +37,14 @@ export const apply = (id, params, scope) => {
     id: arg, 
     value: params[i].type ? evaluate(params[i], scope).value : params[i]
   }))
+
   let updatedIds = scope.identifiers
+  if(fn.closure){
+    updatedIds = updatedIds
+      .filter(({ id }) => !fn.closure.identifiers.some(a => a.id === id))
+      .concat(fn.closure.identifiers)
+  }
+  updatedIds = updatedIds
     .filter(({ id }) => !boundArgs.some(a => a.id === id))
     .concat(boundArgs)
 

@@ -10,6 +10,7 @@ import * as OP from './operations/operations'
 import * as GO from './operations/graph'
 
 import * as M from './modules'
+import * as S from './scripts'
 
 /**
  * 
@@ -124,13 +125,7 @@ export const evaluate = (expr, scope) => {
       return M.importer(expr, scope)  
 
     case 'script':
-      return expr.val.reduce(
-        ({ value, scope }, expression) => {
-          const res = evaluate(expression, scope) 
-          return { value: [...value, res.value], scope: res.scope }
-        }, 
-        { value: [], scope: !expr.imports ? scope : evaluate(expr.imports[0], scope).scope }
-      )
+      return S.script(expr, scope)
     default:
       throw new Error(`Unrecognized type: ${expr.type}\n, in expr: ${JSON.stringify(expr)}`)
   }

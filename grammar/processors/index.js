@@ -1,9 +1,9 @@
 
 
 // SCRIPT
-export const script = ([, [imports], head, tail]) => {
+export const script = ([, module, head, tail]) => {
   const arr = tail ? tail.map(([ expr]) => expr) : []
-  const val = !head 
+  const expressions = !head 
     ? arr
     :  [ 
       { type: 'expression', value: head }, 
@@ -12,16 +12,18 @@ export const script = ([, [imports], head, tail]) => {
 
 	return { 
     type: "script", 
-    imports,
-    val
+    module,
+    expressions
   }
 } 
 
 export const wrap = ([,,e]) => ({ type: 'expression', value: e })
 
 export const importModule = ([, ffi,, path,,,, id]) => ({ type: "import", id, path, foreign: !!(ffi && ffi[1]) })
-export const exportModule = ([,, expr]) => ({ type: "export", value: expr })
+export const exportModule = ([ ,, ids = [] ]) => ids.map(({ value }) => value)
 
+
+export const modules = ([ imports, exports ]) => ({ imports: imports.map(([imp]) => imp), exports })
 
 export const expressions = {
   literal: ([literal]) => ({ type: "literal", value: literal }),

@@ -1,11 +1,10 @@
-# import foreign (map, fold, filter) 'lodash' as Lo
 import foreign 'lodash' as Lo
 
 
-export (map, fold, filter)
+export (at map filter reduce) where
 
 
-at = index -> array -> Lo.nth array n
+at = n array -> Lo.nth array n
 
 map = f -> array -> Lo.map array f
 filter = f -> array -> Lo.filter array f
