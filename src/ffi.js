@@ -1,7 +1,7 @@
 
 
 export const transforms = {
-  fromJS: (jsVal, scope) => {
+  fromJS: (jsVal, scope, bindingContext) => {
     if(Array.isArray(jsVal)) return {
       type: 'list',
       value: jsVal
@@ -9,7 +9,7 @@ export const transforms = {
     
     if(typeof jsVal === 'function') return {
       type:'function',
-      body: jsVal,
+      body: bindingContext ? jsVal.bind(bindingContext) : jsVal,
       foreign: true,
       args: Array(jsVal.length).fill(0).map((_, i) => `__${jsVal.name}__arg_${i}__`),
       closure: scope

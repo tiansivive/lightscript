@@ -12,6 +12,8 @@ import * as GO from './operations/graph'
 import * as M from './modules'
 import * as S from './scripts'
 
+import { transforms } from './ffi'
+
 /**
  * 
  * @param { Expression } expr 
@@ -36,7 +38,7 @@ const assignment = ({ id, value, decorator }, scope) => {
         },
         ...scope.identifiers
       ]
-    : [{ id: id.value, value: result.value }, ...scope.identifiers]
+    : [{ id: id.value, value: result.value, foreign: result.foreign }, ...scope.identifiers]
 
   return { value: result.value, scope: { identifiers } }
 }
@@ -44,9 +46,15 @@ const assignment = ({ id, value, decorator }, scope) => {
 
 const property = ({ id, value, context, foreign }, scope) => {
 
-  const evaluated = evaluate(context, scope).value
-  const result = evaluated.type === 'graph' ? I.find(value.value, evaluated.closure) : evaluated[value.value]
-  return { value: result, scope } 
+  const evaluatedContext = evaluate(context, scope).value
+  const val = evaluatedContext.value[value.value]
+
+  if(evaluatedContext.foreign && !val.type){
+    // TODO:
+    return { value: transforms.fromJS(val, scope, evaluatedContext.value), scope }  
+  }
+
+  return { value: val, scope } 
 }
 
 

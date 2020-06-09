@@ -82,7 +82,9 @@ export const apply = (id, params, scope) => {
       ? transforms.toJS(a.value, { identifiers: updatedIds }) 
       : a.value
     )
-    return { value: fn.body(...jsTransformed), scope }
+    
+
+    return { value: fn.body(...jsTransformed), foreign: true, scope }
   }  
 
   if(fn.composed){

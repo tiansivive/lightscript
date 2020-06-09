@@ -38,7 +38,7 @@ const parseFile = (file, scope) => {
 
 const importFromJS = (id, path, scope) => {
 
-  const module = require(path)
+  const module = require(process.cwd() + '/' + path)
   const value = Object
     .keys(module)
     .reduce((obj, key) => ({ 
