@@ -1,7 +1,7 @@
 import readline from 'readline'
 
 import { Parser, Grammar } from 'nearley'
-import { evaluate } from './evaluation'
+import { evaluate } from './evaluation/evaluation'
 
 import lightscript from '../bin/lightscript'
 

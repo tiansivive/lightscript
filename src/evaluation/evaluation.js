@@ -2,8 +2,6 @@ import * as I from './identifiers'
 import * as R from './literals/record'
 import * as L from './literals/list'
 import * as T from './literals/tuple'
-import * as G from './literals/graph'
-import * as GP from './literals/pattern'
 import * as FN from './functions/definition'
 import * as CF from './control-flow/cf'
 import * as OP from './operations/operations'
@@ -89,14 +87,7 @@ export const evaluate = (expr, scope) => {
       return { value: R.create(expr.value, scope), scope }
     case 'property':
       return property(expr, scope)
-    // case 'graph':
-    //   return { value: G.create(expr, scope), scope } 
-    // case 'graph-pattern': 
-    //   return { value: GP.create(expr, scope), scope }  
-    // case 'graph-node': 
-    //   return { value: GP.node(expr), scope }  
-    // case 'graph-edge': 
-    //   return { value: GP.relationship(expr), scope }  
+
    
     case 'identifier': 
       return { value: I.find(expr.value, scope), scope }

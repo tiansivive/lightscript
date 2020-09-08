@@ -6,6 +6,7 @@
   "scripts": {
     "start": "babel-node src/index.js",
     "repl": "babel-node src/repl.js",
+    "compile": "babel-node src/compile.js",
     "build": "babel src -d dist --source-maps",
     "nearley": "nearleyc grammar/lightscript.ne -o bin/lightscript.js && cp -rf grammar/processors bin",
     "test-nearley": "nearleyc grammar/test.ne -o bin/lightscript.js",
@@ -38,14 +39,15 @@
     "nearley": "^2.19.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.0",
-    "@babel/core": "^7.6.0",
-    "@babel/node": "^7.6.1",
+    "@babel/cli": "^7.11.6",
+    "@babel/core": "^7.11.6",
+    "@babel/node": "^7.10.5",
     "@babel/plugin-proposal-do-expressions": "^7.8.3",
     "@babel/plugin-proposal-partial-application": "^7.8.3",
     "@babel/plugin-proposal-pipeline-operator": "^7.8.3",
     "@babel/plugin-proposal-throw-expressions": "^7.8.3",
-    "@babel/preset-env": "^7.6.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.10.4",
+    "@babel/preset-env": "^7.11.5",
     "babel-eslint": "^11.0.0-beta.2",
     "eslint": "^6.8.0",
     "eslint-plugin-babel": "^5.3.0",
