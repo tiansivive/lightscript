@@ -1,5 +1,3 @@
-import { zip } from "lodash/fp"
-
 
 export const jsOp = (generator, expr) => {
     
@@ -36,4 +34,16 @@ export const composition = (generator, expr) => {
         case '>>':
             return `((...args) => { return ${right}(${left}(...args)) })`
     }
+}
+
+export const assignment = ({ id, value, decorator }, compile, scope) => {
+
+  if(scope.identifiers.includes(id.value)) throw `Identifier "${id.value}" already defined. Cannot reassign identifiers to new values`
+
+  const updatedScope = { ...scope, identifiers: [...scope.identifiers, id.value] }
+  const compiled = compile(updatedScope)(value)
+  return {
+    value: `const ${id.value} = ${compiled.value}`,
+    scope: updatedScope
+  }
 }

@@ -4,21 +4,8 @@ import * as Literals from './literals/index'
 import * as OP from './operations/index'
 import * as FN from './functions/index'
 import * as CF from './control-flow/index'
+import * as M from './modules/index'
 
-const assignment = ({ id, value, decorator }, scope) => {
-
-  if(scope.identifiers.includes(id.value)) throw `Identifier "${id.value}" already defined. Cannot reassign identifiers to new values`
-
-  const updatedScope = { ...scope, identifiers: [...scope.identifiers, id.value] }
-  const compiled = compile(updatedScope)(value)
-  return {
-    value: `const ${id.value} = ${compiled.value}`,
-    scope: updatedScope
-  }
-}
-
-
-const property = val => val
 
 export const compile = scope => expr => {
   if(process.env.DEBUG) console.log('compiling:', expr.type)
@@ -51,7 +38,7 @@ export const compile = scope => expr => {
     case 'identifier': 
       return { value: expr.value, scope }
     case 'assignment':
-      return assignment(expr, scope)
+      return OP.assignment(expr, compile, scope)
 
     case 'math':
     case 'logical':
@@ -73,8 +60,9 @@ export const compile = scope => expr => {
     case 'match':
       return { value: CF.patternMatching(next, expr), scope }
     
-    // case 'import':
-    //   return M.importer(expr, scope)  
+    case 'import':
+      return { value: M.importer(expr), scope }
+    
 
     case 'script':
 
@@ -87,7 +75,11 @@ export const compile = scope => expr => {
       }
 
       const { expressions } = expr.expressions.reduce(generator, { expressions: [], scope })
-      return expressions
+      const modules = expr.module.imports 
+        ? expr.module.imports.map(next)
+        : []
+
+      return [...modules, ...expressions]
     default:
       throw new Error(`Unrecognized type: ${expr.type}\n, in expr: ${JSON.stringify(expr)}`)
   }

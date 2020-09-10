@@ -1,3 +1,4 @@
+import 'lodash' as L
 
 
 obj = 

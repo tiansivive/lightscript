@@ -56,8 +56,6 @@ export const operations = {
 	condition: ([condition]) => ({ type: 'conditional', ...condition }), 
 	composition: ([composition]) => ({ type: 'composition', ...composition }), 
   concatenation: ([concatenation]) => ({type: 'concatenation', ...concatenation }), 
-	graphQuery: ([query]) => ({ type: 'graph-query', ...query }), 
-	graphMutation: ([mutation]) => ({ type: 'graph-mutation', ...mutation })
 }
 
 export const ifThenElse = ([ ,,condition,, ,,truthy,, ,,falsy]) => ({ type: "if-then-else", condition, truthy, falsy })
@@ -77,10 +75,6 @@ export const condition = ([[left],, [op],, right]) => ({ operator: op.value, lef
 
 export const composition =  ([[left],, [op],, right]) => ({ operator: op.value, left, right })
 export const concatenation =  ([[left],, op,, right]) => ({ operator: op.value, left, right })
-
-export const graphQuery = ([[left],, op,, [right]]) => ({ operator: op.value, left, right })
-export const graphMutation = ([[left],, op,, [right]]) => ({ operator: op.value, left, right })
-
 
 export const fnArguments = ([arg, args]) => [arg.value, ...args.map(([,, a]) => a.value)]
 export const params = ([params]) => params.map(([,, p]) => p)
@@ -132,14 +126,6 @@ export const tuple = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xp
 export const list = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)]
 export const record = ([,, key,, colon,, value, rest]) => [{ key, value }, ...rest.map(([,,,k,,,,v]) => ({ key: k, value: v })) ] 
 export const key = ([id]) => id.value
-
-export const emptyGraph = _  => ({ type: 'graph', value: [] })
-export const graph = ([,, [pat],, rest,]) => ({ type: 'graph', value: [pat, ...rest.map(([,, [p],]) => p)] })
-
-// export const node
-// export const relId
-// export const rel
-// export const pattern
 
 export const string = ([{ value }]) => value.slice(1, value.length -1)
 export const number = ([{ value }]) => +value
