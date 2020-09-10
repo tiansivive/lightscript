@@ -40,16 +40,13 @@ export const compile = scope => expr => {
     case 'string':
       return { value: `"${expr.value}"`, scope }
     case 'tuple':
-      const makeTuple = Literals.tuple(next)
-      return { value: makeTuple(expr.value), scope }
+      return { value:  Literals.tuple(next, expr.value), scope }
     case 'list':
-      const makeList = Literals.list(next)
-      return { value: makeList(expr.value), scope }
+      return { value: Literals.list(next, expr.value), scope }
     case 'record':
-      const makeRecord = Literals.tuple(next)
-      return { value: makeRecord(expr.value), scope }
+      return { value: Literals.tuple(next, expr.value), scope }
     case 'property':
-      return { value: property(expr, scope), scope }
+      return { value: Literals.property(next, expr), scope }
    
     case 'identifier': 
       return { value: expr.value, scope }
