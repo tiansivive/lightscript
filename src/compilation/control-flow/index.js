@@ -18,7 +18,7 @@ export const patternMatching = (generator, {
     const e = generator(expression)
     const o = generator(otherwise)
 
-    const transform = ({ evaluation, value }) => `case ((${generator(evaluation).value}) === __val__): return ${generator(value).value};`
+    const transform = ({ evaluation, value }) => `case ((${generator(evaluation)}) === __val__): return ${generator(value)};`
     const branches = patterns.map(transform).join('')
 
 

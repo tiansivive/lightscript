@@ -1,8 +1,9 @@
-import { pipe } from 'lodash/fp'
+import { pipe, get } from 'lodash/fp'
 
 import * as Literals from './literals/index'
 import * as OP from './operations/index'
 import * as FN from './functions/index'
+import * as CF from './control-flow/index'
 
 const assignment = ({ id, value, decorator }, scope) => {
 
@@ -27,9 +28,11 @@ export const compile = scope => expr => {
   switch (expr.type) {
     case 'literal':
     case 'control-flow':
-    case 'parenthesis':         
     case 'expression':
       return compile(scope)(expr.value)
+    case 'parenthesis':  
+      const res = compile(scope)(expr.value)
+      return { value: `(${res.value})`, scope: res.scope }
 
     case 'boolean':
     case 'number':
@@ -69,9 +72,9 @@ export const compile = scope => expr => {
       return { value: FN.applyFn(next, expr), scope }
       
     case 'if-then-else':
-      return { value: CF.ifThenElse(expr), scope }
+      return { value: CF.ifThenElse(next, expr), scope }
     case 'match':
-      return { value: CF.patternMatching(expr), scope }
+      return { value: CF.patternMatching(next, expr), scope }
     
     // case 'import':
     //   return M.importer(expr, scope)  

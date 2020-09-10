@@ -20,3 +20,8 @@ khgf = k >> h >> g >> f
 fghk 10
 
 khgf 10
+
+fac = x -> match x
+    | 0 -> x
+    | 1 -> x
+    | otherwise -> x * fac (x - 1)
