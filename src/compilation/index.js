@@ -44,7 +44,7 @@ export const compile = scope => expr => {
     case 'list':
       return { value: Literals.list(next, expr.value), scope }
     case 'record':
-      return { value: Literals.tuple(next, expr.value), scope }
+      return { value: Literals.record(next, expr.value), scope }
     case 'property':
       return { value: Literals.property(next, expr), scope }
    

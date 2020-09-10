@@ -10,8 +10,10 @@ export const tuple = (generator, val) => pipe(
 export const list = tuple
 
 
+const makeObject = generator => (pairs, { key, value }) => [...pairs, `${key}:${generator(value)}`]
+
 export const record = (generator, val) => pipe(
-    reduce(generator)([]),
+    reduce(makeObject(generator))([]),
     join(','),
     str => `{${str}}`
 )(val)

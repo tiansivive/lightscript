@@ -18,7 +18,7 @@ expression -> identifier {% id %}
 	
 parenthesis -> "(" _ expression _ ")" {% B.parenthesis %}
 
-assignment -> identifier _ "=" _ expression {% B.assignment %}
+assignment -> identifier __:* "=" __:* expression {% B.assignment %}
 property -> (record | identifier | parenthesis | property ) %dot identifier {% B.property %}
 
 binding -> identifier __:* "<-" __:* expression {% B.binding %}

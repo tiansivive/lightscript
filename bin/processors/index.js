@@ -130,7 +130,7 @@ export const opFunction = ([[op],, expr]) => {
 
 export const tuple = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)]
 export const list = ([,, expr,, rest,]) => [expr, ...rest.map(([,, xpr,]) => xpr)]
-export const record = ([,, key,, colon,, value,, rest,]) => [{ key, value }, ...rest.map(([,,k,,,,v,]) => ({ key: k, value: v })) ] 
+export const record = ([,, key,, colon,, value, rest]) => [{ key, value }, ...rest.map(([,,,k,,,,v]) => ({ key: k, value: v })) ] 
 export const key = ([id]) => id.value
 
 export const emptyGraph = _  => ({ type: 'graph', value: [] })

@@ -13,8 +13,8 @@ literal -> number {% B.literals.number %}
 tuple -> "(" _ expression _ ("," _ expression _):+ ")" {% B.tuple %}
 list -> "[" _ "]" {% () => [] %}
  	  | "[" _ expression _ ("," _ expression _):* "]" {% B.list %}
-record -> "{" _ "}" {% () => [] %}
- 		| "{" _ key _ ":" _ expression _ (","  _ key _ ":" _ expression _):* "}" {% B.record %}
+record -> "{" __:* "}" {% () => [] %}
+ 		| "{" __:* key __:* ":" __:* expression (__:* ","  __:* key __:* ":" __:* expression):* __:* "}" {% B.record %}
 
 key -> identifier {% B.key %}
  	 #| string {% id %}
