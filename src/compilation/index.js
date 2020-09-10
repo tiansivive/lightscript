@@ -1,36 +1,28 @@
 
 
 import * as Literals from './literals/index'
-import * as S from './scripts/scripts'
+import * as OP from './operations/index'
+import * as FN from './functions/index'
 
 const assignment = ({ id, value, decorator }, scope) => {
 
-  const result = compile(value, scope)
-  const identifiers = decorator && result.value.type === 'function' 
-    ? [
-        { 
-          id: id.value, 
-          value: {
-            ...result.value, 
-            decorator: { 
-              id: decorator.id, 
-              value: decorator.value
-            }
-          }
-        },
-        ...scope.identifiers
-      ]
-    : [{ id: id.value, value: result.value, foreign: result.foreign }, ...scope.identifiers]
+  if(scope.identifiers.includes(id.value)) throw `Identifier "${id.value}" already defined. Cannot reassign identifiers to new values`
 
-  return { value: result.value, scope: { identifiers } }
+  const updatedScope = { ...scope, identifiers: [...scope.identifiers, id.value] }
+  const compiled = compile(updatedScope)(value)
+  return {
+    value: `const ${id.value} = ${compiled.value}`,
+    scope: updatedScope
+  }
 }
 
 
 const property = val => val
 
-
 export const compile = scope => expr => {
   if(process.env.DEBUG) console.log('compiling:', expr.type)
+
+  const next = compile(scope)
   
   switch (expr.type) {
     case 'literal':
@@ -41,46 +33,41 @@ export const compile = scope => expr => {
 
     case 'boolean':
     case 'number':
-      return expr.value
+      return { value: expr.value, scope }
     case 'string':
-      return `"${expr.value}"`
+      return { value: `"${expr.value}"`, scope }
     case 'tuple':
-      const makeTuple = Literals.tuple(compile(scope))
-      return makeTuple(expr.value)
+      const makeTuple = Literals.tuple(next)
+      return { value: makeTuple(expr.value), scope }
     case 'list':
-      const makeList = Literals.list(compile(scope))
-      return makeList(expr.value)
+      const makeList = Literals.list(next)
+      return { value: makeList(expr.value), scope }
     case 'record':
-      const makeRecord = Literals.tuple(compile(scope))
-      return makeRecord(expr.value)
+      const makeRecord = Literals.tuple(next)
+      return { value: makeRecord(expr.value), scope }
     case 'property':
-      return property(expr, scope)
+      return { value: property(expr, scope), scope }
    
-    // case 'identifier': 
-    //   return { value: I.find(expr.value, scope), scope }
-    // case 'assignment':
-    //   return assignment(expr, scope)
+    case 'identifier': 
+      return { value: expr.value, scope }
+    case 'assignment':
+      return assignment(expr, scope)
 
-    // case 'math':
-    //   return { value: OP.math(expr, scope), scope }
-    // case 'logical':
-    //   return { value: OP.logical(expr, scope), scope } 
-    // case 'conditional':
-    //   return { value: OP.conditional(expr, scope), scope }
-    // case 'concatenation':
-    //   return { value: OP.concatenation(expr, scope), scope }
-    // case 'composition':
-    //   return { value: OP.composition(expr, scope), scope }
-    // case 'graph-query':
-    //   return { value: GO.query(expr, scope), scope }
-    // case 'graph-mutation':
-    //   return { value: GO.mutation(expr, scope), scope }
+    case 'math':
+    case 'logical':
+    case 'conditional':
+      return { value: OP.jsOp(next, expr), scope }
+    case 'concatenation':
+      return { value: OP.concatenation(next, expr), scope }
+    case 'composition':
+      return { value: OP.composition(next, expr), scope }
 
 
-    // case 'function':
-    //   return FN.create(expr, scope)
-    // case 'function-application':
-    //   return FN.apply(expr.id, expr.params, scope)
+
+    case 'function':
+      return { value: FN.makeFn(next, expr), scope }
+    case 'function-application':
+      return { value: FN.applyFn(next, expr), scope }
       
     // case 'if-then-else':
     //   return CF.ifThenElse(expr, scope)
@@ -92,7 +79,16 @@ export const compile = scope => expr => {
 
     case 'script':
 
-      return expr.expressions.map(compile(scope))
+      const generator = (result, expression) => {
+        const compiled = compile(result.scope)(expression)
+        return {
+          expressions: [...result.expressions, compiled.value],
+          scope: compiled.scope
+        }
+      }
+
+      const { expressions } = expr.expressions.reduce(generator, { expressions: [], scope })
+      return expressions
     default:
       throw new Error(`Unrecognized type: ${expr.type}\n, in expr: ${JSON.stringify(expr)}`)
   }
