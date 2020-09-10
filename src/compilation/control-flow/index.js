@@ -21,8 +21,6 @@ export const patternMatching = (generator, {
     const transform = ({ evaluation, value }) => `case ((${generator(evaluation)}) === __val__): return ${generator(value)};`
     const branches = patterns.map(transform).join('')
 
-
-
     return `(_ => { 
         const __val__ = ${e};
         switch(true){ ${branches} default: return ${o} }
