@@ -11,3 +11,6 @@ obj =
         , nope: off
         }
     }
+
+
+fn = x y -> x + y    
