@@ -1,4 +1,4 @@
-
+import { pipe } from 'lodash/fp'
 
 import * as Literals from './literals/index'
 import * as OP from './operations/index'
@@ -22,7 +22,7 @@ const property = val => val
 export const compile = scope => expr => {
   if(process.env.DEBUG) console.log('compiling:', expr.type)
 
-  const next = compile(scope)
+  const next = pipe(compile(scope), get('value'))
   
   switch (expr.type) {
     case 'literal':
@@ -63,16 +63,15 @@ export const compile = scope => expr => {
       return { value: OP.composition(next, expr), scope }
 
 
-
     case 'function':
       return { value: FN.makeFn(next, expr), scope }
     case 'function-application':
       return { value: FN.applyFn(next, expr), scope }
       
-    // case 'if-then-else':
-    //   return CF.ifThenElse(expr, scope)
-    // case 'match':
-    //   return CF.patternMatching(expr, scope)
+    case 'if-then-else':
+      return { value: CF.ifThenElse(expr), scope }
+    case 'match':
+      return { value: CF.patternMatching(expr), scope }
     
     // case 'import':
     //   return M.importer(expr, scope)  
