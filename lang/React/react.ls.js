@@ -1,9 +1,9 @@
-import 'react' as R
-import 'lodash/fp' as fp
+import React from 'react'
+
+export const createElement = el => props => children => React.createElement(el, props, ...children) 
 
 
-
-tags = [
+const tags = [
     'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside',
     'audio', 'b', 'base', 'basefont', 'bdi', 'bdo', 'bgsound', 'big', 'blink',
     'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite',
@@ -25,16 +25,6 @@ tags = [
 ]
 
 
-html = fp.map ( props children ->  R.createElement props ...children ) tags
+export const html = tags.map(createElement)
 
 
-
-myComp = props -> html.div { onClick: console.log } [ props.title ]
-
-
-other = props -> myComp { title: 'hello world' }
-
-
-
-
-render = other {} []

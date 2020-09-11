@@ -14,7 +14,8 @@ export const applyFn = (generator, { id, params }) => {
         map(generator),
         join(',')
     )
+
+    const fn = generator(id)
     
-    return `${id.value}(${generateParamList(params)})`
+    return `${fn}(${generateParamList(params)})`
 } 
-    

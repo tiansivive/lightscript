@@ -1,16 +1,6 @@
-import 'lodash' as L
+import 'react-dom' as R
+import './app' as app
 
 
-obj = 
-    { one: 1
-    , two: 2
-    , fn: x -> x + 1
-    , str: "str"
-    , bar: 
-        { foo: on
-        , nope: off
-        }
-    }
 
-
-fn = x y -> x + y    
+R.render (app.main {} []) (document.getElementById 'app')

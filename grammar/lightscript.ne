@@ -7,7 +7,7 @@ wrapped -> %nl __:* expression {% B.wrap %}
 modules -> (import (%nl __:*):*):* export:? {% B.modules %}
 
 ### MODULES
-import -> "import" ((__ __:*) "foreign"):? (__ __:*) string (__ __:*) "as" (__ __:*) identifier {% B.importModule %}
+import -> "import" (__ __:*) string (__ __:*) "as" (__ __:*) identifier {% B.importModule %}
 export -> "export" (__ __:*) exportList:? (__ __:*) "where" {% B.exportModule %}
 		 
 exportList -> "(" __:* identifier (__:+ identifier):* __:* ")" {% ([,, head, tail]) => [head, ...tail.map(([, id]) => id)] %}

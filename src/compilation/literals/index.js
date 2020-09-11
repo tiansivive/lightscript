@@ -18,4 +18,4 @@ export const record = (generator, val) => pipe(
     str => `{${str}}`
 )(val)
 
-export const property = (generator, { id, value }) => `${generator(id)}.${generator(value)}`
+export const property = (generator, { context, value }) => `${generator(context)}.${generator(value)}`
