@@ -1,6 +1,6 @@
 import React from 'react'
-
-export const createElement = el => props => children => React.createElement(el, props, ...children) 
+import ReactDOM from 'react-dom'
+export const createElement = el => (props, children) => React.createElement(el, props, ...children) 
 
 
 const tags = [
@@ -25,6 +25,5 @@ const tags = [
 ]
 
 
-export const html = tags.map(createElement)
-
-
+export const html = tags.reduce((obj, tag) => ({ ...obj, [tag]: createElement(tag) }))
+export const mount = app => ReactDOM.render(app, document.getElementById('react'))
