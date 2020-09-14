@@ -7,8 +7,9 @@
     "start": "babel-node src/index.js",
     "repl": "babel-node src/repl.js",
     "compile": "babel-node src/compile.js",
+    "lsc": "babel-node lsc.js 'app/src'",
     "build": "babel src -d dist --source-maps",
-    "nearley": "nearleyc grammar/lightscript.ne -o bin/lightscript.js && cp -rf grammar/processors bin",
+    "nearley": "nearleyc grammar/lightscript.ne -o bin/lightscript.js && babel grammar/processors -d bin/processors",
     "test-nearley": "nearleyc grammar/test.ne -o bin/lightscript.js",
     "test-grammar": "nearley-test bin/lightscript.js",
     "railroad": "nearley-railroad grammar/lightscript.ne -o bin/grammar.html"
@@ -34,6 +35,7 @@
     ]
   },
   "dependencies": {
+    "glob": "^7.1.6",
     "lodash": "^4.17.15",
     "moo": "^0.5.0",
     "nearley": "^2.19.0"

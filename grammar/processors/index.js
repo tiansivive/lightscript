@@ -20,7 +20,7 @@ export const script = ([, module, head, tail]) => {
 export const wrap = ([,,e]) => ({ type: 'expression', value: e })
 
 export const importModule = ([,, path,,,, id]) => ({ type: "import", id, path })
-export const exportModule = ([ ,, ids = [] ]) => ids.map(({ value }) => value)
+export const exportModule = ([,, ids = [] ]) => ids.map(({ value }) => ({ type: 'export', value }))
 
 
 export const modules = ([ imports, exports ]) => ({ imports: imports.map(([imp]) => imp), exports })

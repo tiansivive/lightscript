@@ -14,7 +14,7 @@ export const concatenation = (generator, expr) => {
 
     return `((a, b) => {
         if(Array.isArray(left)){
-          return Lo.concat(a, b);
+          return [...a, ...b]);
         }
         if(typeof a === 'string'){
           return a + b;

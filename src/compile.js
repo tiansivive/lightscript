@@ -25,7 +25,7 @@ console.log(ast)
 console.log('Compiled:')
 
 
-writeFileSync('out/test.js', js.join(';\n') + ';')
+writeFileSync('lang/out/test.js', js.join(';\n') + ';')
 console.log('Finished Compiling JS!')
 
 

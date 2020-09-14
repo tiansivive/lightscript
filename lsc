@@ -1,0 +1,1 @@
+node ~/Workspace/LightScript/.bin/lsc.js "$@"

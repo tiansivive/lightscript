@@ -62,7 +62,6 @@ export const compile = scope => expr => {
     
     case 'import':
       return { value: M.importer(expr), scope }
-    
 
     case 'script':
 
@@ -75,11 +74,11 @@ export const compile = scope => expr => {
       }
 
       const { expressions } = expr.expressions.reduce(generator, { expressions: [], scope })
-      const modules = expr.module.imports 
+      const imports = expr.module.imports 
         ? expr.module.imports.map(next)
         : []
 
-      return [...modules, ...expressions]
+      return [...imports, ...expressions, M.exporter(expr.module.exports)]
     default:
       throw new Error(`Unrecognized type: ${expr.type}\n, in expr: ${JSON.stringify(expr)}`)
   }

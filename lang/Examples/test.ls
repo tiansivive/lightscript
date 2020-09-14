@@ -1,6 +1,8 @@
-import 'react-dom' as R
-import './app' as app
+export (h) where
 
 
+f = x -> y -> x + y
 
-R.render (app.main {} []) (document.getElementById 'app')
+g = f 1
+
+h = (f 1) 1
