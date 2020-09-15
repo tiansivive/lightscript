@@ -7,7 +7,7 @@ import lightscript from '../bin/lightscript'
 
 
 // Create a Parser object from our grammar.
-const parser = new Parser(Grammar.fromCompiled(lightscript))
+
 const initialScope = { identifiers: [] }
 
 process.argv.forEach(a => console.log(a))
@@ -35,6 +35,7 @@ glob(`**/*.ls`, { cwd: directory }, (e, files) => {
         return new Promise((resolve, reject) => readFile(directory + '/' + file, (err, data) => {
             if(err) return reject(err)
 
+            const parser = new Parser(Grammar.fromCompiled(lightscript))
             const code = data.toString()
             parser.feed(code)
             const ast = parser.results[0]
@@ -44,7 +45,7 @@ glob(`**/*.ls`, { cwd: directory }, (e, files) => {
     
             writeFile(outputDir + '/' + replaceExtension(file), js.join(';\n') + ';', err => (err ? reject(err) : resolve(true)))
    
-        }))
+        })).then(_ => console.log('FINISHED', file))
     })
 
     Promise.all(promises).then(_ => console.log('FINISHED COMPILING!'))

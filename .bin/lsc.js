@@ -13,7 +13,6 @@ var _lightscript = _interopRequireDefault(require("../bin/lightscript"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // Create a Parser object from our grammar.
-const parser = new _nearley.Parser(_nearley.Grammar.fromCompiled(_lightscript.default));
 const initialScope = {
   identifiers: []
 };
@@ -39,13 +38,14 @@ const replaceExtension = file => file.replace('.ls', '.js');
     console.log('compiling', file);
     return new Promise((resolve, reject) => (0, _fs.readFile)(directory + '/' + file, (err, data) => {
       if (err) return reject(err);
+      const parser = new _nearley.Parser(_nearley.Grammar.fromCompiled(_lightscript.default));
       const code = data.toString();
       parser.feed(code);
       const ast = parser.results[0];
       const generate = (0, _index.compile)(initialScope);
       const js = generate(ast);
       (0, _fs.writeFile)(outputDir + '/' + replaceExtension(file), js.join(';\n') + ';', err => err ? reject(err) : resolve(true));
-    }));
+    })).then(_ => console.log('FINISHED', file));
   });
   Promise.all(promises).then(_ => console.log('FINISHED COMPILING!'));
 });

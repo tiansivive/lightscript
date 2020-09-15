@@ -1,5 +1,5 @@
 import '../lib/react.l.js' as R
-import 'chat/panel' as C
+import './chat/panel' as C
 
 R.mount (C.render {
     messages: [

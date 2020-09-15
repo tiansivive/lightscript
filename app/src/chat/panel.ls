@@ -1,7 +1,7 @@
-import 'lodash' as L
-import '../../lib/react.l.js' as R 
-import 'form' as F
-import 'message' as M
+import 'lodash/fp' as L
+import '../../lib/react.l.js' as R
+import './form' as F
+import './message' as M
 
 export (render) where
 

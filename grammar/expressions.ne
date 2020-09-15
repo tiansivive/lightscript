@@ -36,6 +36,9 @@ parameters -> (%ws __:* parameter):+ {% B.params %}
 parameter -> literal {% id %}
 		   | identifier {% id %}
  		   | parenthesis {% id %}
+		   | property {% id %}
+		   | operation {% id %}
+		   | function {% id %}
 		   
 function -> arguments (%ws __:*) "->" (%ws __:*) expression {% B.func %}
 functionApplication -> ( identifier | property | parenthesis) _ "<|":? parameters {% B.backApply %}

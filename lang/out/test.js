@@ -1,3 +1,10 @@
 import * as R from '../../lib/react.l.js';
-const render = (props) => R.html.input(props,[]);
-export {render};
+import * as C from 'chat/panel';
+import * as L from 'lodash';
+import * as F from 'form';
+import * as M from 'message';
+const chat = (props) => R.html.div({},[(L.map(M.render))(props.messages),F.render(props.handlers)]);
+const mg = (props) => R.html.div({},[R.html.span({},[props.user]),R.html.span({},[props.text])]);
+const input = (props) => R.html.input(props,[]);
+R.mount((C.render({messages:[{user:"tiansivive', text: 'hello world!"},{user:"bot', text: 'This is your chat!"},{user:"anonymous', text: 'ping"}],handlers:{onChange:console.log}},[])));
+;
