@@ -6,6 +6,6 @@ import 'message' as M
 export (render) where
 
 render = props -> R.html.div {} [
-    (L.map M.render props.messages),
+    (L.map M.render) props.messages,
     F.render props.handlers
 ]

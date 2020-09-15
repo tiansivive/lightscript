@@ -16,7 +16,7 @@ expression -> identifier {% id %}
 			| do {% id %}
 			| decorator %nl expression {% B.expressions.decorate %}
 	
-parenthesis -> "(" _ expression _ ")" {% B.parenthesis %}
+parenthesis -> "(" __:* expression __:* ")" {% B.parenthesis %}
 
 assignment -> identifier __:* "=" __:* expression {% B.assignment %}
 property -> (record | identifier | parenthesis | property ) %dot identifier {% B.property %}

@@ -10,9 +10,9 @@ literal -> number {% B.literals.number %}
 
 # ### DATA TYPES
 
-tuple -> "(" _ expression _ ("," _ expression _):+ ")" {% B.tuple %}
-list -> "[" _ "]" {% () => [] %}
- 	  | "[" _ expression _ ("," _ expression _):* "]" {% B.list %}
+tuple -> "(" __:* expression __:* ("," __:* expression):+ __:* ")" {% B.tuple %}
+list -> "[" __:* "]" {% () => [] %}
+ 	  | "["  __:* expression __:* ("," __:* expression):* __:* "]" {% B.list %}
 record -> "{" __:* "}" {% () => [] %}
  		| "{" __:* key __:* ":" __:* expression (__:* ","  __:* key __:* ":" __:* expression):* __:* "}" {% B.record %}
 

@@ -4,7 +4,7 @@
 ### SCRIPT
 script -> __:* modules expression:? (wrapped):* __:? {% B.script %}
 wrapped -> %nl __:* expression {% B.wrap %}
-modules -> (import (%nl __:*):*):* export:? {% B.modules %}
+modules -> (import __:*):* export:? {% B.modules %}
 
 ### MODULES
 import -> "import" (__ __:*) string (__ __:*) "as" (__ __:*) identifier {% B.importModule %}
